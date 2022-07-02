@@ -7,7 +7,16 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@apollo/client": "^3.6.9",
+    "@heroicons/react": "^1.0.6",
+    "@nhost/nextjs": "latest",
+    "@nhost/react": "latest",
+    "@nhost/react-apollo": "^4.6.0",
+    "flowbite": "^1.4.7",
+    "framer-motion": "^6.3.16",
+    "graphql": "^16.5.0",
     "next": "latest",
+    "next-themes": "^0.2.0",
     "react": "18.1.0",
     "react-dom": "18.1.0"
   },
