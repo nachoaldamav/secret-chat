@@ -10,6 +10,9 @@ import {
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import getUserId from "../queries/getUserId";
+import { nhost } from "../libs/nhost";
+import { gql } from "@apollo/client";
 
 const NON_PROTECTED_ROUTES = ["/", "/login", "/signup"];
 
@@ -44,6 +47,12 @@ export default function AppLayout({ children }: any) {
 
   useEffect(() => {
     setMounted(true);
+
+    const interval = setInterval(() => {
+      setConnection();
+    }, 10000);
+
+    return () => clearInterval(interval);
   }, []);
 
   if (!mounted) {
@@ -69,7 +78,7 @@ export default function AppLayout({ children }: any) {
         )}
         {children}
         {!NON_PROTECTED_ROUTES.includes(pathname) && (
-          <div className="flex flex-row items-center absolute bottom-0 left-0 px-2 py-6 justify-evenly w-full bg-gray-200 dark:bg-gray-800 rounded-t-3xl sm:rounded-b-xl h-fit">
+          <div className="flex flex-row items-center absolute bottom-0 left-0 px-2 py-6 justify-evenly w-full bg-gray-100 dark:bg-gray-800 rounded-t-3xl sm:rounded-b-xl h-fit">
             {ROUTES.map((route) => (
               <Link href={route.path} key={route.path}>
                 <a
@@ -88,4 +97,28 @@ export default function AppLayout({ children }: any) {
       </div>
     </div>
   );
+}
+
+async function setConnection() {
+  const userId = getUserId();
+  if (userId) {
+    // UTC timezone
+    const timestamp = new Date().toISOString().split(".")[0];
+    await nhost.graphql.request(
+      gql`
+        mutation MyMutation(
+          $userId: uuid = userId
+          $last_seen: timestamptz = timestamp
+        ) {
+          update_user_data(
+            where: { id: { _eq: $userId } }
+            _set: { last_seen: $last_seen }
+          ) {
+            affected_rows
+          }
+        }
+      `,
+      { userId, last_seen: timestamp }
+    );
+  }
 }
