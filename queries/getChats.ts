@@ -11,21 +11,19 @@ export default async function getChats() {
   const { data, error } = await nhost.graphql.request(gql`
     query getChats {
       chat_aggregate(where: {user_id: {_eq: "${id}"}}) {
-    nodes {
-      id
-      user_data {
-        connected
-        custom_avatar
-        id
-        last_seen
-        typing
-        user {
-          displayName
-          avatarUrl
+        nodes {
+          id
+          user_data {
+            custom_avatar
+            id
+            last_seen
+            user {
+              displayName
+              avatarUrl
+            }
+          }
         }
       }
-    }
-  }
     }
   `);
 

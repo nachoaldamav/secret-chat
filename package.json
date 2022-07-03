@@ -12,13 +12,16 @@
     "@nhost/nextjs": "latest",
     "@nhost/react": "latest",
     "@nhost/react-apollo": "^4.6.0",
+    "@twilio/conversations": "^2.1.0",
     "flowbite": "^1.4.7",
     "framer-motion": "^6.3.16",
     "graphql": "^16.5.0",
+    "jwt-decode": "^3.1.2",
     "next": "latest",
     "next-themes": "^0.2.0",
     "react": "18.1.0",
-    "react-dom": "18.1.0"
+    "react-dom": "18.1.0",
+    "twilio": "^3.78.0"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.2",
