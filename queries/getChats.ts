@@ -10,43 +10,29 @@ export default async function getChats() {
 
   const { data, error } = await nhost.graphql.request(gql`
     query getChats {
-      participates(
-        where: { user_id: { _eq: "5fb2d415-a575-448e-b32a-c78be8f01665" } }
-      ) {
+      chat_aggregate(where: {user_id: {_eq: "${id}"}}) {
+    nodes {
+      id
+      user_data {
+        connected
+        custom_avatar
         id
-        chat {
-          participants {
-            user_data {
-              id
-            }
-          }
-          Messages(limit: 1, order_by: { created_at: desc }) {
-            id
-            raw
-            created_at
-            media
-          }
+        last_seen
+        typing
+        user {
+          displayName
+          avatarUrl
         }
       }
     }
+  }
+    }
   `);
 
-  const chats = data?.participates;
+  console.log(data);
+  console.log(error);
 
-  console.log(chats);
-
-  if (error) {
-    console.error(error);
-    return {
-      error: error,
-      data: null,
-    };
-  }
-
-  return {
-    data,
-    error: null,
-  };
+  return { data, error };
 }
 
 export type Chat = {
