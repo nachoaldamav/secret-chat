@@ -12,8 +12,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       <NhostApolloProvider nhost={nhost}>
         <ThemeProvider
           storageKey="color-theme"
-          /* @ts-ignore-next-line */
-          forcedTheme={Component.theme}
+          forcedTheme={"dark"}
           attribute="class"
         >
           <AppLayout>

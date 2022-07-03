@@ -3,11 +3,12 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import ErrorToast from "../components/ErrorToast";
-import Spinner from "../components/Spinner";
 import { nhost } from "../libs/nhost";
+import getUserId from "../queries/getUserId";
 
 export default function LoginPage() {
   const router = useRouter();
+  const userId = getUserId();
   const { signInEmailPassword, isSuccess, isError, error } =
     useSignInEmailPassword();
   const [loading, setLoading] = useState(false);
@@ -17,10 +18,16 @@ export default function LoginPage() {
   async function handleLogin() {
     setLoading(true);
     await signInEmailPassword(email, password);
-    if (isSuccess) router.push("/home");
-    if (isError) console.error(error);
+    if (isError) {
+      console.error(error);
+    } else {
+      router.push("/home");
+    }
+
     setLoading(false);
   }
+
+  if (userId) router.push("/home");
 
   return (
     <div className="flex flex-col w-full h-full items-center justify-start relative">

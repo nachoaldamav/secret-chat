@@ -1,6 +1,7 @@
 import withAuth from "../utils/withAuth";
 import { useState, useEffect } from "react";
 import getChats, { Chat } from "../queries/getChats";
+import { nhost } from "../libs/nhost";
 
 function Home() {
   const [chats, setChats] = useState<Chat[] | null | undefined>(null);
@@ -21,6 +22,21 @@ function Home() {
     }
 
     fetchData();
+
+    const accessToken = nhost.auth.getAccessToken();
+    if (accessToken) {
+      fetch("/api/get-token", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      })
+        .then((res) => {
+          console.log(res.json());
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
   }, []);
 
   return (
