@@ -1,6 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import twilio from "twilio";
 import jwt_decode from "jwt-decode";
+require("dotenv").config();
+
+const {
+  NEXT_PUBLIC_ACCOUNT_SID,
+  NEXT_PUBLIC_API_KEY_SID,
+  NEXT_PUBLIC_API_KEY_SECRET,
+} = process.env;
 
 export default async function GetToken(
   req: NextApiRequest,
@@ -25,23 +32,23 @@ export default async function GetToken(
   const { ChatGrant } = AccessToken;
 
   const accessToken = new AccessToken(
-    process.env.NEXT_PUBLIC_ACCOUNT_SID || "",
-    process.env.NEXT_PUBLIC_API_KEY_SID || "",
-    process.env.NEXT_PUBLIC_API_KEY_SECRET || "",
+    NEXT_PUBLIC_ACCOUNT_SID || "",
+    NEXT_PUBLIC_API_KEY_SID || "",
+    NEXT_PUBLIC_API_KEY_SECRET || "",
     {
-      identity: identity,
+      identity,
     }
   );
 
   const conversationGrant = new ChatGrant({
     serviceSid: process.env.NEXT_PUBLIC_SERVICE_SID,
-    endpointId: "user",
   });
 
   accessToken.addGrant(conversationGrant);
 
   res.status(200).json({
     token: accessToken.toJwt(),
+    ttl: accessToken.ttl,
   });
 }
 

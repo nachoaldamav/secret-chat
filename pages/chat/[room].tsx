@@ -1,10 +1,15 @@
 import { ApolloError, gql } from "@apollo/client";
 import { PaperAirplaneIcon } from "@heroicons/react/outline";
 import { useAuthQuery } from "@nhost/react-apollo";
+import type { Participant } from "../../types/Room";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Spinner from "../../components/Spinner";
+import { useTwilioConfig } from "../../hooks/useTwilioConfig";
+import { nhost } from "../../libs/nhost";
 import getUserId from "../../queries/getUserId";
+import createOrJoinRoom from "../../utils/room";
+import { Conversation } from "@twilio/conversations";
 
 const GET_ROOM = gql`
   query getRoom($roomId: uuid! = room) {
@@ -33,7 +38,9 @@ export default function RoomPage() {
   const userId = getUserId();
   const { room } = router.query;
   const [participants, setParticipants] = useState<Participant[]>([]);
-  const [isCreator, setIsCreator] = useState(false);
+  const [isCreator, setIsCreator] = useState<boolean | null>(null);
+  const { config } = useTwilioConfig();
+  const { accessToken } = config;
 
   const {
     loading,
@@ -67,9 +74,32 @@ export default function RoomPage() {
 
       if (userId === data.room[0].creator_id) {
         setIsCreator(true);
+      } else {
+        console.log("Not creator");
+        console.log(data.room[0].creator_id);
+        console.log(userId);
       }
     }
   }, [data, userId]);
+
+  useEffect(() => {
+    const roomId = room as string;
+    async function joinRoom() {
+      const conversation = (await createOrJoinRoom(
+        roomId,
+        accessToken as string,
+        participants,
+        isCreator as boolean
+      )) as Conversation;
+      console.log(conversation);
+      const messages = await conversation.getMessages();
+      console.log(messages);
+    }
+
+    if (isCreator !== null) {
+      joinRoom();
+    }
+  }, [participants, isCreator, accessToken, room]);
 
   if (loading) {
     return (
@@ -89,8 +119,8 @@ export default function RoomPage() {
 
   if (data && data.room.length === 0) router.push("/home");
 
-  console.log(data);
-  console.log("Participants: ", participants);
+  /* console.log(data);
+  console.log("Participants: ", participants); */
 
   return (
     <div className="w-full pb-10 h-full flex flex-col justify-center items-center">
@@ -140,12 +170,4 @@ type ChatData = {
       displayName: string;
     };
   };
-};
-
-type Participant = {
-  avatar: string;
-  lastSeen: string;
-  name: string;
-  id: string;
-  isCreator: boolean;
 };
