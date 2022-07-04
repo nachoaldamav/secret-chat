@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes";
 import { NhostNextProvider } from "@nhost/nextjs";
 import { NhostApolloProvider } from "@nhost/react-apollo";
 import { nhost } from "../libs/nhost";
+import { TwilioProvider } from "../context/twilioConfig";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -15,9 +16,11 @@ function MyApp({ Component, pageProps }: AppProps) {
           forcedTheme={"dark"}
           attribute="class"
         >
-          <AppLayout>
-            <Component {...pageProps} />
-          </AppLayout>
+          <TwilioProvider>
+            <AppLayout>
+              <Component {...pageProps} />
+            </AppLayout>
+          </TwilioProvider>
         </ThemeProvider>
       </NhostApolloProvider>
     </NhostNextProvider>
