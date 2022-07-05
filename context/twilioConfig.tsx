@@ -16,6 +16,29 @@ export const TwilioProvider = ({ children }: { children: React.ReactNode }) => {
     expirationDate: 0,
   });
 
+  async function fetchToken(nhostToken: string) {
+    return await fetch("/api/get-token", {
+      headers: {
+        Authorization: `Bearer ${nhostToken}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        const rawConfig = {
+          accessToken: res.token,
+          expirationDate: new Date().getTime() + res.ttl * 1000,
+        };
+        setConfig(rawConfig);
+        localStorage.setItem("twilio_accessToken", JSON.stringify(rawConfig));
+        return rawConfig;
+      })
+      .catch((err) => {
+        console.error(err);
+        console.log("Nhost access token", nhostToken);
+        return null;
+      });
+  }
+
   useEffect(() => {
     const userId = getUserId();
     const nhostToken = nhost.auth.getAccessToken();
@@ -29,30 +52,20 @@ export const TwilioProvider = ({ children }: { children: React.ReactNode }) => {
         accessToken,
         expirationDate,
       });
-    } else if (
-      (nhostToken && userId) ||
-      (!accessToken && nhostToken) ||
-      currentDate > expirationDate
+    }
+
+    if (
+      nhostToken &&
+      userId &&
+      (currentDate > expirationDate || accessToken === 0)
     ) {
-      console.log("Fetching new token", nhostToken, userId);
-      fetch("/api/get-token", {
-        headers: {
-          Authorization: `Bearer ${nhostToken}`,
-        },
-      })
-        .then((res) => res.json())
-        .then((res) => {
-          const rawConfig = {
-            accessToken: res.token,
-            expirationDate: new Date().getTime() + res.ttl,
-          };
-          setConfig(rawConfig);
-          localStorage.setItem("twilio_accessToken", JSON.stringify(rawConfig));
-        })
-        .catch((err) => {
-          console.error(err);
-          console.log("Nhost access token", nhostToken);
-        });
+      console.log("Token expired, fetching new token...", nhostToken, userId);
+      fetchToken(nhostToken);
+    }
+
+    if (!accessToken && nhostToken) {
+      console.log("Access token missing", nhostToken, userId);
+      fetchToken(nhostToken);
     }
   }, []);
 
