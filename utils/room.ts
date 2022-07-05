@@ -8,14 +8,17 @@ export default async function createOrJoinRoom(
   accessToken: string,
   participants: Participant[] | null = null,
   isCreator: boolean = false
-) {
+): Promise<Conversation> {
   const userId = getUserId();
   const client = new Client(accessToken);
 
+  console.log(`Creating or joining room ${room}`);
+
   return new Promise((resolve) => {
     client.on("stateChanged", async (state) => {
+      console.log(`Room ${room} state changed to ${state}`);
       if (state === "initialized") {
-        let conversation;
+        let conversation: Conversation;
 
         try {
           console.log("Is creator:", isCreator);
@@ -32,15 +35,15 @@ export default async function createOrJoinRoom(
               await conversation?.add(participant.id);
             }
           }
+          resolve(conversation);
         } catch (e) {
           try {
             conversation = await client.getConversationByUniqueName(room);
+            resolve(conversation);
           } catch (e) {
             console.error(e);
           }
         }
-
-        resolve(conversation);
       }
     });
   });

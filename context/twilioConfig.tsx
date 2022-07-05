@@ -54,18 +54,20 @@ export const TwilioProvider = ({ children }: { children: React.ReactNode }) => {
       });
     }
 
-    if (
-      nhostToken &&
-      userId &&
-      (currentDate > expirationDate || accessToken === 0)
-    ) {
-      console.log("Token expired, fetching new token...", nhostToken, userId);
-      fetchToken(nhostToken);
-    }
+    console.log(currentDate > expirationDate);
 
-    if (!accessToken && nhostToken) {
-      console.log("Access token missing", nhostToken, userId);
-      fetchToken(nhostToken);
+    if (nhost && nhostToken) {
+      // Fetch token if it's expired
+      if (currentDate > expirationDate) {
+        fetchToken(nhostToken);
+      }
+
+      // Fetch if there is no token
+      if (!accessToken) {
+        fetchToken(nhostToken);
+      }
+    } else {
+      console.log("No nhost token");
     }
   }, []);
 

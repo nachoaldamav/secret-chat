@@ -6,7 +6,6 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Spinner from "../../components/Spinner";
 import { useTwilioConfig } from "../../hooks/useTwilioConfig";
-import { nhost } from "../../libs/nhost";
 import getUserId from "../../queries/getUserId";
 import createOrJoinRoom from "../../utils/room";
 import { Conversation } from "@twilio/conversations";
@@ -37,6 +36,7 @@ export default function RoomPage() {
   const router = useRouter();
   const userId = getUserId();
   const { room } = router.query;
+  const [conversation, setConversation] = useState<Conversation | null>(null);
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [isCreator, setIsCreator] = useState<boolean | null>(null);
   const { config } = useTwilioConfig();
@@ -75,6 +75,7 @@ export default function RoomPage() {
       if (userId === data.room[0].creator_id) {
         setIsCreator(true);
       } else {
+        setIsCreator(false);
         console.log("Not creator");
         console.log(data.room[0].creator_id);
         console.log(userId);
@@ -85,21 +86,27 @@ export default function RoomPage() {
   useEffect(() => {
     const roomId = room as string;
     async function joinRoom() {
-      const conversation = (await createOrJoinRoom(
+      console.log("Joining room");
+      const conversation = await createOrJoinRoom(
         roomId,
         accessToken as string,
         participants,
         isCreator as boolean
-      )) as Conversation;
+      );
+      setConversation(conversation);
       console.log(conversation);
-      const messages = await conversation.getMessages();
-      console.log(messages);
     }
 
-    if (isCreator !== null) {
-      joinRoom();
-    }
+    if (accessToken && room) joinRoom();
   }, [participants, isCreator, accessToken, room]);
+
+  useEffect(() => {
+    if (conversation) {
+      conversation.on("messageAdded", (message) => {
+        console.log(message);
+      });
+    }
+  }, [conversation]);
 
   if (loading) {
     return (
@@ -119,31 +126,49 @@ export default function RoomPage() {
 
   if (data && data.room.length === 0) router.push("/home");
 
-  /* console.log(data);
-  console.log("Participants: ", participants); */
+  function sendMessage(message: string) {
+    if (conversation) {
+      conversation
+        .sendMessage(message)
+        .then((e) => {
+          console.log("Message sent", e);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else {
+      console.log("No conversation");
+    }
+  }
 
   return (
     <div className="w-full pb-10 h-full flex flex-col justify-center items-center">
       <section id="messages" className="h-5/6 w-full"></section>
-      <section
+      <form
         id="input"
         className="w-full inline-flex items-start justify-between gap-1"
+        onSubmit={(e) => {
+          e.preventDefault();
+          const message = document.getElementById(
+            "message"
+          ) as HTMLInputElement;
+          sendMessage(message.value);
+          message.value = "";
+        }}
       >
         <input
           type="text"
+          id="message"
           className="w-full rounded-xl bg-transparent"
           placeholder="Type a message..."
         />
         <button
           className="w-fit h-full rounded-xl bg-blue-600 inline-flex items-center text-white pl-2 pr-2 justify-center"
-          type="button"
-          onClick={() => {
-            console.log("Send message");
-          }}
+          type="submit"
         >
           <PaperAirplaneIcon className="w-6 h-6 rotate-90" />
         </button>
-      </section>
+      </form>
     </div>
   );
 }
