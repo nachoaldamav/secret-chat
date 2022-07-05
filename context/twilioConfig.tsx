@@ -1,6 +1,5 @@
 import { createContext, useEffect, useState } from "react";
 import { nhost } from "../libs/nhost";
-import getUserId from "../queries/getUserId";
 
 export const TwilioContext = createContext<TwilioContext>({
   config: {
@@ -16,33 +15,33 @@ export const TwilioProvider = ({ children }: { children: React.ReactNode }) => {
     expirationDate: 0,
   });
 
-  async function fetchToken(nhostToken: string) {
-    return await fetch("/api/get-token", {
-      headers: {
-        Authorization: `Bearer ${nhostToken}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        const rawConfig = {
-          accessToken: res.token,
-          expirationDate: new Date().getTime() + res.ttl * 1000,
-        };
-        setConfig(rawConfig);
-        localStorage.setItem("twilio_accessToken", JSON.stringify(rawConfig));
-        return rawConfig;
-      })
-      .catch((err) => {
-        console.error(err);
-        console.log("Nhost access token", nhostToken);
-        return null;
-      });
-  }
-
   useEffect(() => {
-    const userId = getUserId();
-    const nhostToken = nhost.auth.getAccessToken();
+    console.log("TwilioProvider");
     const currentDate = new Date().getTime();
+    async function fetchToken(nhostToken: string) {
+      return await fetch("/api/get-token", {
+        headers: {
+          Authorization: `Bearer ${nhostToken}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((res) => {
+          const rawConfig = {
+            accessToken: res.token,
+            expirationDate: currentDate + res.ttl * 1000,
+          };
+          setConfig(rawConfig);
+          localStorage.setItem("twilio_accessToken", JSON.stringify(rawConfig));
+          return rawConfig;
+        })
+        .catch((err) => {
+          console.error(err);
+          console.log("Nhost access token", nhostToken);
+          return null;
+        });
+    }
+
+    const nhostToken = nhost.auth.getAccessToken();
 
     const local: string = localStorage.getItem("twilio_accessToken") || "{}";
     const { accessToken, expirationDate } = JSON.parse(local) || {};
@@ -53,8 +52,6 @@ export const TwilioProvider = ({ children }: { children: React.ReactNode }) => {
         expirationDate,
       });
     }
-
-    console.log(currentDate > expirationDate);
 
     if (nhost && nhostToken) {
       // Fetch token if it's expired
