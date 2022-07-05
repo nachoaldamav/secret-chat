@@ -12,16 +12,12 @@ export default async function createOrJoinRoom(
   const userId = getUserId();
   const client = new Client(accessToken);
 
-  console.log(`Creating or joining room ${room}`);
-
   return new Promise((resolve) => {
     client.on("stateChanged", async (state) => {
-      console.log(`Room ${room} state changed to ${state}`);
       if (state === "initialized") {
         let conversation: Conversation;
 
         try {
-          console.log("Is creator:", isCreator);
           if (!isCreator) throw new Error("You are not the creator");
           conversation = await client.createConversation({ uniqueName: room });
           conversation.add(userId as string);
