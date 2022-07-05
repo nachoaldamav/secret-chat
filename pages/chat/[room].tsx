@@ -3,12 +3,12 @@ import { PaperAirplaneIcon } from "@heroicons/react/outline";
 import { useAuthQuery } from "@nhost/react-apollo";
 import type { Participant } from "../../types/Room";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Spinner from "../../components/Spinner";
 import { useTwilioConfig } from "../../hooks/useTwilioConfig";
 import getUserId from "../../queries/getUserId";
 import createOrJoinRoom from "../../utils/room";
-import { Conversation } from "@twilio/conversations";
+import { Conversation, Message } from "@twilio/conversations";
 
 const GET_ROOM = gql`
   query getRoom($roomId: uuid! = room) {
@@ -32,6 +32,12 @@ const GET_ROOM = gql`
   }
 `;
 
+type QUERY_PROPS = {
+  loading: boolean;
+  error?: ApolloError | null;
+  data?: RoomData;
+};
+
 export default function RoomPage() {
   const router = useRouter();
   const userId = getUserId();
@@ -39,20 +45,19 @@ export default function RoomPage() {
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [isCreator, setIsCreator] = useState<boolean | null>(null);
+  const [messages, setMessages] = useState<any[]>([]);
+  let scrollDiv = useRef(null);
   const { config } = useTwilioConfig();
   const { accessToken } = config;
 
-  const {
-    loading,
-    data,
-    error,
-  }: {
-    loading: boolean;
-    data?: RoomData;
-    error?: ApolloError;
-  } = useAuthQuery(GET_ROOM, {
+  const { loading, data, error }: QUERY_PROPS = useAuthQuery(GET_ROOM, {
     variables: { roomId: room },
   });
+
+  const handleMessageAdded = (message: Message) => {
+    setMessages((messages) => [...messages, message]);
+    scrollToBottom();
+  };
 
   useEffect(() => {
     if (data && data.room) {
@@ -76,9 +81,6 @@ export default function RoomPage() {
         setIsCreator(true);
       } else {
         setIsCreator(false);
-        console.log("Not creator");
-        console.log(data.room[0].creator_id);
-        console.log(userId);
       }
     }
   }, [data, userId]);
@@ -86,27 +88,29 @@ export default function RoomPage() {
   useEffect(() => {
     const roomId = room as string;
     async function joinRoom() {
-      console.log("Joining room");
       const conversation = await createOrJoinRoom(
         roomId,
         accessToken as string,
         participants,
         isCreator as boolean
       );
+
       setConversation(conversation);
-      console.log(conversation);
+      const messages = await conversation.getMessages();
+      setMessages(messages.items);
+
+      scrollToBottom();
+
+      conversation.on("messageAdded", (message) => handleMessageAdded(message));
     }
 
     if (accessToken && room) joinRoom();
-  }, [participants, isCreator, accessToken, room]);
 
-  useEffect(() => {
-    if (conversation) {
-      conversation.on("messageAdded", (message) => {
-        console.log(message);
-      });
-    }
-  }, [conversation]);
+    return () => {
+      conversation?.off("messageAdded", handleMessageAdded);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accessToken, room]);
 
   if (loading) {
     return (
@@ -128,25 +132,62 @@ export default function RoomPage() {
 
   function sendMessage(message: string) {
     if (conversation) {
-      conversation
-        .sendMessage(message)
-        .then((e) => {
-          console.log("Message sent", e);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      conversation.sendMessage(String(message).trim()).catch((err) => {
+        console.log(err);
+      });
     } else {
       console.log("No conversation");
     }
   }
 
+  function scrollToBottom() {
+    // @ts-ignore-next-line
+    const current = scrollDiv.current as HTMLElement;
+
+    setTimeout(() => {
+      if (current) {
+        current.scrollTop = current.scrollHeight - 100;
+      } else {
+        console.log("No scrollDiv");
+      }
+    }, 0);
+  }
+
   return (
-    <div className="w-full pb-10 h-full flex flex-col justify-center items-center">
-      <section id="messages" className="h-5/6 w-full"></section>
+    <div className="w-full h-full flex flex-col gap-2 justify-start items-center">
+      <section
+        id="messages"
+        className="h-full w-full flex flex-col overflow-x-auto gap-4 p-2"
+        ref={scrollDiv}
+      >
+        {messages
+          .filter((message, index) => {
+            return messages.findIndex((m) => m.sid === message.sid) === index;
+          })
+          .map((message) => (
+            <div key={message.sid} className="flex w-full">
+              <div
+                className="flex flex-col w-full"
+                style={{
+                  textAlign: message.author === userId ? "right" : "left",
+                }}
+              >
+                <p
+                  className="text-sm font-semibold"
+                  style={{
+                    color: message.author === userId ? "green" : "white",
+                  }}
+                >
+                  {participants.find((p) => p.id === message.author)?.name}
+                </p>
+                <p className="text-sm">{message.body}</p>
+              </div>
+            </div>
+          ))}
+      </section>
       <form
         id="input"
-        className="w-full inline-flex items-start justify-between gap-1"
+        className="w-full mb-2 inline-flex items-start justify-between gap-1"
         onSubmit={(e) => {
           e.preventDefault();
           const message = document.getElementById(
