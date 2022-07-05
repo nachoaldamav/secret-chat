@@ -49,7 +49,7 @@ export default function AppLayout({ children }: any) {
     setMounted(true);
 
     const interval = setInterval(() => {
-      setConnection();
+      /* setConnection(); */
     }, 10000);
 
     return () => clearInterval(interval);
