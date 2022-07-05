@@ -13,6 +13,7 @@
     "@nhost/react": "latest",
     "@nhost/react-apollo": "^4.6.0",
     "@twilio/conversations": "^2.1.0",
+    "dotenv": "^16.0.1",
     "flowbite": "^1.4.7",
     "framer-motion": "^6.3.16",
     "graphql": "^16.5.0",

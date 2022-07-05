@@ -15,9 +15,20 @@ export const TwilioProvider = ({ children }: { children: React.ReactNode }) => {
     expirationDate: 0,
   });
 
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   useEffect(() => {
-    console.log("TwilioProvider");
+    const auth = async () => {
+      nhost.auth.isAuthenticatedAsync().then((isAuthenticated) => {
+        setIsAuthenticated(isAuthenticated);
+      });
+    };
+    auth();
+  }, []);
+
+  useEffect(() => {
     const currentDate = new Date().getTime();
+
     async function fetchToken(nhostToken: string) {
       return await fetch("/api/get-token", {
         headers: {
@@ -53,7 +64,7 @@ export const TwilioProvider = ({ children }: { children: React.ReactNode }) => {
       });
     }
 
-    if (nhost && nhostToken) {
+    if (nhostToken) {
       // Fetch token if it's expired
       if (currentDate > expirationDate) {
         fetchToken(nhostToken);
@@ -63,10 +74,8 @@ export const TwilioProvider = ({ children }: { children: React.ReactNode }) => {
       if (!accessToken) {
         fetchToken(nhostToken);
       }
-    } else {
-      console.log("No nhost token");
     }
-  }, []);
+  }, [isAuthenticated]);
 
   return (
     <TwilioContext.Provider value={{ config }}>

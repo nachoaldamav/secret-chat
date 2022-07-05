@@ -101,7 +101,9 @@ export default function RoomPage() {
 
       scrollToBottom();
 
-      conversation.on("messageAdded", (message) => handleMessageAdded(message));
+      conversation.on("messageAdded", (message: Message) =>
+        handleMessageAdded(message)
+      );
     }
 
     if (accessToken && room) joinRoom();
@@ -132,7 +134,7 @@ export default function RoomPage() {
 
   function sendMessage(message: string) {
     if (conversation) {
-      conversation.sendMessage(String(message).trim()).catch((err) => {
+      conversation.sendMessage(String(message).trim()).catch((err: any) => {
         console.log(err);
       });
     } else {
