@@ -1,7 +1,8 @@
 import withAuth from "../utils/withAuth";
 import { useState, useEffect } from "react";
 import getChats, { Chat } from "../queries/getChats";
-import { nhost } from "../libs/nhost";
+import Spinner from "../components/Spinner";
+import ChatItem from "../components/ChatItem";
 
 function Home() {
   const [chats, setChats] = useState<Chat[] | null | undefined>(null);
@@ -16,27 +17,12 @@ function Home() {
         console.log(res);
         setError(res?.error);
       } else {
-        setChats(res?.data);
+        setChats(res?.data.room);
       }
       setLoading(false);
     }
 
     fetchData();
-
-    const accessToken = nhost.auth.getAccessToken();
-    if (accessToken) {
-      fetch("/api/get-token", {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      })
-        .then((res) => {
-          console.log(res.json());
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
   }, []);
 
   return (
@@ -47,10 +33,20 @@ function Home() {
       {error && (
         <span className="flex flex-col text-2xl font-bold self-center mt-10">
           Error al cargar tus chats.
-          <pre className="text-sm max-w-full overflow-y-visible">
-            {JSON.stringify(error, null, 2)}
-          </pre>
         </span>
+      )}
+      {loading && (
+        <div className="w-full h-full flex flex-col justify-center items-center">
+          <h1 className="text-2xl font-bold">Cargando tus chats...</h1>
+          <Spinner />
+        </div>
+      )}
+
+      {chats && (
+        <ul className="w-full h-full flex flex-col justify-start items-start gap-2 overflow-x-auto pb-16">
+          {chats?.length > 0 &&
+            chats.map((chat) => <ChatItem chat={chat} key={chat.id} />)}
+        </ul>
       )}
     </section>
   );
