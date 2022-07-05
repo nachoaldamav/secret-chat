@@ -61,7 +61,7 @@ export default function AppLayout({ children }: any) {
 
   return (
     <div className="w-full min-h-screen flex flex-col items-start justify-center h-fit bg-gray-200 text-black dark:bg-secondary dark:text-white font-display sm:p-4 max-h-screen">
-      <div className="flex flex-col w-full max-w-md mx-auto bg-primaryLight dark:bg-primary h-screen sm:rounded-xl py-4 px-3 relative">
+      <div className="flex flex-col w-full max-w-md mx-auto bg-primaryLight dark:bg-primary max-h-[95vh] h-screen sm:rounded-xl py-4 px-3 relative">
         {NON_PROTECTED_ROUTES.includes(pathname) && (
           <span className="absolute top-0 right-0 mr-4 mb-4 z-[999]">
             <button
@@ -76,7 +76,9 @@ export default function AppLayout({ children }: any) {
             </button>
           </span>
         )}
-        {children}
+        <div className="flex flex-col w-full h-[90%] justify-start items-center">
+          {children}
+        </div>
         {!NON_PROTECTED_ROUTES.includes(pathname) && (
           <div className="flex flex-row items-center absolute bottom-0 left-0 px-2 py-6 justify-evenly w-full bg-gray-100 dark:bg-gray-800 rounded-t-3xl sm:rounded-b-xl h-fit">
             {ROUTES.map((route) => (
