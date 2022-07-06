@@ -9,6 +9,9 @@ import { useTwilioConfig } from "../../hooks/useTwilioConfig";
 import getUserId from "../../queries/getUserId";
 import createOrJoinRoom from "../../utils/room";
 import { Conversation, Message } from "@twilio/conversations";
+import Link from "next/link";
+import { ArrowLeftIcon } from "@heroicons/react/outline";
+import ChatSkeleton from "../../components/chatLoader";
 
 const GET_ROOM = gql`
   query getRoom($roomId: uuid! = room) {
@@ -156,40 +159,66 @@ export default function RoomPage() {
   }
 
   return (
-    <div className="w-full h-full flex flex-col gap-2 justify-start items-center">
+    <div className="w-full h-full flex flex-col justify-start items-center">
+      <div className="w-full h-14 p-2 flex flex-row justify-between items-center">
+        <Link as={"/home"} href="/home">
+          <a className="h-6 w-6">
+            <ArrowLeftIcon />
+          </a>
+        </Link>
+      </div>
       <section
         id="messages"
-        className="h-full w-full flex flex-col overflow-x-auto gap-4 p-2"
+        className="h-[80%] md:h-[90%] w-full pb-[1.5em] md:pb-[6.5em] flex flex-col overflow-y-auto overflow-x-hidden gap-4 p-2 scrollbar-thin scrollbar-thumb-blue-700 scrollbar-track-gray-800"
         ref={scrollDiv}
       >
+        {messages.length === 0 && (
+          <ChatSkeleton
+            speed={2}
+            backgroundColor="#13111c"
+            foregroundColor="#181622"
+          />
+        )}
         {messages
           .filter((message, index) => {
             return messages.findIndex((m) => m.sid === message.sid) === index;
           })
           .map((message) => (
-            <div key={message.sid} className="flex w-full">
+            <div
+              key={message.sid}
+              className="flex w-full pr-2"
+              style={{
+                alignItems: "center",
+                justifyContent:
+                  message.author === userId ? "flex-end" : "flex-start",
+              }}
+            >
               <div
-                className="flex flex-col w-full"
+                className="flex flex-col w-full bg-blue-700 px-3 py-4"
                 style={{
                   textAlign: message.author === userId ? "right" : "left",
+                  borderRadius:
+                    message.author === userId
+                      ? "1rem 1rem  0 1rem"
+                      : "0.5rem 0 0 0",
+                  maxWidth: "75%",
                 }}
               >
-                <p
-                  className="text-sm font-semibold"
-                  style={{
-                    color: message.author === userId ? "green" : "white",
-                  }}
-                >
-                  {participants.find((p) => p.id === message.author)?.name}
+                {message.author !== userId && (
+                  <p className="text-sm font-semibold text-white">
+                    {participants.find((p) => p.id === message.author)?.name}
+                  </p>
+                )}
+                <p className="font-messages tracking-normal md:tracking-wide text-sm">
+                  {message.body}
                 </p>
-                <p className="text-sm">{message.body}</p>
               </div>
             </div>
           ))}
       </section>
       <form
         id="input"
-        className="w-full mb-2 inline-flex items-start justify-between gap-1"
+        className="w-full inline-flex items-center justify-between gap-1 flex-row absolute bottom-0 left-0 px-2 py-6 bg-gray-100 dark:bg-gray-800 rounded-t-xl sm:rounded-b-xl h-22"
         onSubmit={(e) => {
           e.preventDefault();
           const message = document.getElementById(
@@ -203,10 +232,10 @@ export default function RoomPage() {
           type="text"
           id="message"
           className="w-full rounded-xl bg-transparent"
-          placeholder="Type a message..."
+          placeholder="Escribe tu mensaje..."
         />
         <button
-          className="w-fit h-full rounded-xl bg-blue-600 inline-flex items-center text-white pl-2 pr-2 justify-center"
+          className="w-fit h-full rounded-xl py-2 bg-blue-600 inline-flex items-center text-white pl-2 pr-2 justify-center"
           type="submit"
         >
           <PaperAirplaneIcon className="w-6 h-6 rotate-90" />

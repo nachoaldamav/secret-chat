@@ -26,7 +26,7 @@ function Home() {
   }, []);
 
   return (
-    <section className="w-full h-full flex flex-col justify-start items-start px-2">
+    <section className="w-full h-full flex flex-col justify-start items-start px-4 py-3">
       <h1 className="text-2xl font-display text-left text-black dark:text-white font-bold">
         Chats
       </h1>

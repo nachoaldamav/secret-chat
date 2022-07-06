@@ -10,6 +10,7 @@ module.exports = {
     extend: {
       fontFamily: {
         display: ["Inter", "sans-serif"],
+        messages: ["Monserrat", "sans-serif"],
       },
       colors: {
         primary: "#181622",
@@ -19,5 +20,5 @@ module.exports = {
       },
     },
   },
-  plugins: [require("flowbite/plugin")],
+  plugins: [require("flowbite/plugin"), require("tailwind-scrollbar")],
 };

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Chat } from "../queries/getChats";
 
 export default function ChatItem({ chat }: { chat: Chat }) {
@@ -16,17 +17,16 @@ export default function ChatItem({ chat }: { chat: Chat }) {
 
   return (
     <li className="flex flex-col justify-start items-start mb-2 border w-full rounded-lg px-2 py-1">
-      <a
-        href={`/chat/${chat.id}`}
-        className="flex flex-row gap-1 justify-start items-start"
-      >
-        <img
-          src={chat.icon ?? creator?.avatar}
-          alt={creator?.name}
-          className="w-12 h-12 rounded-full mr-2"
-        />
-        <span className="text-lg font-bold">{renderNames(participants)}</span>
-      </a>
+      <Link href={"/chat/[room]"} as={`/chat/${chat.id}`}>
+        <a className="flex flex-row gap-1 justify-start items-start">
+          <img
+            src={chat.icon ?? creator?.avatar}
+            alt={creator?.name}
+            className="w-12 h-12 rounded-full mr-2"
+          />
+          <span className="text-lg font-bold">{renderNames(participants)}</span>
+        </a>
+      </Link>
     </li>
   );
 }
