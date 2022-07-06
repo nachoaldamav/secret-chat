@@ -30,9 +30,6 @@ export default async function getChats() {
 
   const { data, error } = await nhost.graphql.request(QUERY);
 
-  console.log(data);
-  console.log(error);
-
   return { data, error };
 }
 

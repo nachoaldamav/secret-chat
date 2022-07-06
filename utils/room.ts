@@ -35,9 +35,11 @@ export default async function createOrJoinRoom(
         } catch (e) {
           try {
             conversation = await client.getConversationByUniqueName(room);
+
             resolve(conversation);
           } catch (e) {
-            console.error(e);
+            console.error("Joining room failed: ", e);
+            console.log(client);
           }
         }
       }

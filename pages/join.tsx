@@ -1,14 +1,20 @@
 import { gql } from "@apollo/client";
 import { useRouter } from "next/router";
-import { useState, useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import Spinner from "../components/Spinner";
 import { nhost } from "../libs/nhost";
 import getUserId from "../queries/getUserId";
 import withAuth from "../utils/withAuth";
 
 const ADD_CHAT = gql`
-  mutation AddChat($room_id: uuid = room_id, $user_id: uuid = user_id) {
-    insert_chat_one(object: { room_id: $room_id, user_id: $user_id }) {
+  mutation AddChat(
+    $room_id: uuid = room_id
+    $user_id: uuid = user_id
+    $chat_id: uuid = chat_id
+  ) {
+    insert_chat_one(
+      object: { id: $chat_id, room_id: $room_id, user_id: $user_id }
+    ) {
       room_id
     }
   }
@@ -19,6 +25,7 @@ function CreatePage() {
   const userId = getUserId();
   const accessToken = nhost.auth.getAccessToken();
   const { id } = router.query;
+  const uuid = useMemo(() => crypto.randomUUID(), []);
 
   useEffect(() => {
     async function addData() {
@@ -35,6 +42,7 @@ function CreatePage() {
       const { data, error } = await nhost.graphql.request(ADD_CHAT, {
         room_id: id,
         user_id: userId,
+        chat_id: uuid,
       });
 
       if (error) {
@@ -50,7 +58,7 @@ function CreatePage() {
     if (accessToken && userId) {
       addData();
     }
-  }, [router, userId, accessToken, id]);
+  }, [router, userId, accessToken, id, uuid]);
 
   return (
     <section className="w-full h-full flex flex-col justify-center items-center gap-2">
