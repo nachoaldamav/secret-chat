@@ -42,22 +42,7 @@ const ROUTES = [
 export default function AppLayout({ children }: any) {
   const router = useRouter();
   const { pathname } = router;
-  const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
-
-  useEffect(() => {
-    setMounted(true);
-
-    const interval = setInterval(() => {
-      /* setConnection(); */
-    }, 10000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  if (!mounted) {
-    return null;
-  }
 
   const hasFooter =
     !NON_PROTECTED_ROUTES.includes(pathname) && pathname !== "/chat/[room]";

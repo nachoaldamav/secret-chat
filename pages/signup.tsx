@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import ErrorToast from "../components/ErrorToast";
 import { nhost } from "../libs/nhost";
+import createUser from "../utils/createUser";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -46,6 +47,7 @@ export default function LoginPage() {
           email: data.email,
           password: data.password,
         });
+        await createUser();
         router.push("/home");
       } else {
         setLoading(false);
