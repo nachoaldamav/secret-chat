@@ -1,5 +1,9 @@
 import { ApolloError, gql } from "@apollo/client";
-import { PaperAirplaneIcon } from "@heroicons/react/outline";
+import {
+  MicrophoneIcon,
+  PaperAirplaneIcon,
+  TrashIcon,
+} from "@heroicons/react/outline";
 import { useAuthQuery } from "@nhost/react-apollo";
 import type { Participant } from "../../types/Room";
 import { useRouter } from "next/router";
@@ -7,11 +11,13 @@ import { useEffect, useRef, useState } from "react";
 import Spinner from "../../components/Spinner";
 import { useTwilioConfig } from "../../hooks/useTwilioConfig";
 import getUserId from "../../queries/getUserId";
-import createOrJoinRoom from "../../utils/room";
 import { Conversation, Message } from "@twilio/conversations";
 import Link from "next/link";
 import { ArrowLeftIcon } from "@heroicons/react/outline";
 import ChatSkeleton from "../../components/chatLoader";
+import MessageComponent from "../../components/Message";
+import scrollToBottom from "../../utils/scrollToBottom";
+import joinRoom from "../../utils/joinRoom";
 
 const GET_ROOM = gql`
   query getRoom($roomId: uuid! = room) {
@@ -49,6 +55,13 @@ export default function RoomPage() {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [isCreator, setIsCreator] = useState<boolean | null>(null);
   const [messages, setMessages] = useState<any[]>([]);
+  const [message, setMessage] = useState<string | null>(null);
+  const [recording, setRecording] = useState<boolean>(false);
+  const [audioRecorder, setAudioRecorder] = useState<MediaRecorder | null>(
+    null
+  );
+  const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   let scrollDiv = useRef(null);
   const { config } = useTwilioConfig();
   const { accessToken } = config;
@@ -59,7 +72,7 @@ export default function RoomPage() {
 
   const handleMessageAdded = (message: Message) => {
     setMessages((messages) => [...messages, message]);
-    scrollToBottom();
+    scrollToBottom(scrollDiv);
   };
 
   useEffect(() => {
@@ -90,32 +103,23 @@ export default function RoomPage() {
 
   useEffect(() => {
     const roomId = room as string;
-    async function joinRoom() {
-      const conversation = await createOrJoinRoom(
+
+    if (userId && accessToken && room)
+      joinRoom(
         roomId,
-        accessToken as string,
+        accessToken,
         participants,
-        isCreator as boolean
+        isCreator as boolean,
+        setConversation,
+        setMessages,
+        scrollDiv
       );
-
-      setConversation(conversation);
-      const messages = await conversation.getMessages();
-      setMessages(messages.items);
-
-      scrollToBottom();
-
-      conversation.on("messageAdded", (message: Message) =>
-        handleMessageAdded(message)
-      );
-    }
-
-    if (accessToken && room) joinRoom();
 
     return () => {
       conversation?.off("messageAdded", handleMessageAdded);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accessToken, room]);
+  }, [accessToken, room, userId]);
 
   if (loading) {
     return (
@@ -145,17 +149,53 @@ export default function RoomPage() {
     }
   }
 
-  function scrollToBottom() {
-    // @ts-ignore-next-line
-    const current = scrollDiv.current as HTMLElement;
+  function recordAudio() {
+    navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+      const recorder = new MediaRecorder(stream);
+      setAudioRecorder(recorder);
+      const chunks: Blob[] = [];
 
-    setTimeout(() => {
-      if (current) {
-        current.scrollTop = current.scrollHeight - 100;
-      } else {
-        console.log("No scrollDiv");
-      }
-    }, 0);
+      recorder.start(1000);
+
+      recorder.ondataavailable = (e) => {
+        console.log("Chunk added!");
+        setAudioChunks((prevChunks) => [...prevChunks, e.data]);
+      };
+    });
+  }
+
+  function stopAudio() {
+    if (audioRecorder) {
+      audioRecorder.stop();
+      setRecording(false);
+    }
+  }
+
+  function sendAudio() {
+    if (audioRecorder && conversation) {
+      stopAudio();
+      const blob = new Blob(audioChunks, {
+        type: "audio/wav",
+      });
+
+      const formData = new FormData();
+      formData.append("file", blob as Blob, "audio.wav");
+
+      conversation
+        .sendMessage(formData)
+        .then(() => {
+          cleanAudio();
+        })
+        .catch((err: any) => {
+          console.log(err);
+          cleanAudio();
+        });
+    }
+  }
+
+  function cleanAudio() {
+    setAudioChunks([]);
+    setAudioBlob(null);
   }
 
   return (
@@ -183,37 +223,12 @@ export default function RoomPage() {
           .filter((message, index) => {
             return messages.findIndex((m) => m.sid === message.sid) === index;
           })
-          .map((message) => (
-            <div
+          .map((message: Message) => (
+            <MessageComponent
               key={message.sid}
-              className="flex w-full pr-2"
-              style={{
-                alignItems: "center",
-                justifyContent:
-                  message.author === userId ? "flex-end" : "flex-start",
-              }}
-            >
-              <div
-                className="flex flex-col w-full bg-blue-700 px-3 py-4"
-                style={{
-                  textAlign: message.author === userId ? "right" : "left",
-                  borderRadius:
-                    message.author === userId
-                      ? "1rem 1rem  0 1rem"
-                      : "0.5rem 0 0 0",
-                  maxWidth: "75%",
-                }}
-              >
-                {message.author !== userId && (
-                  <p className="text-sm font-semibold text-white">
-                    {participants.find((p) => p.id === message.author)?.name}
-                  </p>
-                )}
-                <p className="font-messages tracking-normal md:tracking-wide text-sm">
-                  {message.body}
-                </p>
-              </div>
-            </div>
+              message={message}
+              participants={participants}
+            />
           ))}
       </section>
       <form
@@ -221,25 +236,76 @@ export default function RoomPage() {
         className="w-full inline-flex items-center justify-between gap-1 flex-row absolute bottom-0 left-0 px-2 py-6 bg-gray-100 dark:bg-gray-800 rounded-t-xl sm:rounded-b-xl h-22"
         onSubmit={(e) => {
           e.preventDefault();
-          const message = document.getElementById(
-            "message"
-          ) as HTMLInputElement;
-          sendMessage(message.value);
-          message.value = "";
+
+          // @ts-ignore-next-line
+          const input = e.target.elements.message as HTMLInputElement;
+
+          if (message) {
+            sendMessage(message as string);
+            setMessage(null);
+            input.value = "";
+          }
         }}
       >
-        <input
-          type="text"
-          id="message"
-          className="w-full rounded-xl bg-transparent"
-          placeholder="Escribe tu mensaje..."
-        />
-        <button
-          className="w-fit h-full rounded-xl py-2 bg-blue-600 inline-flex items-center text-white pl-2 pr-2 justify-center"
-          type="submit"
-        >
-          <PaperAirplaneIcon className="w-6 h-6 rotate-90" />
-        </button>
+        {!recording ? (
+          <input
+            type="text"
+            id="message"
+            className="w-full rounded-xl bg-transparent"
+            placeholder="Escribe tu mensaje..."
+            onChange={(e) => setMessage(e.target.value)}
+          />
+        ) : (
+          <span className="font-bold text-center w-full text-xl">
+            Grabando audio...
+          </span>
+        )}
+        {message ? (
+          <button
+            className="w-fit h-full rounded-xl py-2 bg-blue-600 inline-flex items-center text-white pl-2 pr-2 justify-center"
+            type="submit"
+          >
+            <PaperAirplaneIcon className="w-6 h-6 rotate-90" />
+          </button>
+        ) : (
+          <>
+            <button
+              className={
+                !recording
+                  ? "w-fit h-full rounded-xl py-2 bg-blue-600 inline-flex items-center text-white pl-2 pr-2 justify-center"
+                  : "w-fit h-full rounded-xl py-2 bg-red-600 inline-flex items-center text-white pl-2 pr-2 justify-center"
+              }
+              type="button"
+              onClick={() => {
+                if (!recording) {
+                  recordAudio();
+                  setRecording(true);
+                } else {
+                  stopAudio();
+                  setRecording(false);
+                  cleanAudio();
+                }
+              }}
+            >
+              {!recording ? (
+                <MicrophoneIcon className="w-6 h-6" />
+              ) : (
+                <TrashIcon className="w-6 h-6" />
+              )}
+            </button>
+            {recording && (
+              <button
+                className="w-fit h-full rounded-xl py-2 bg-blue-600 inline-flex items-center text-white pl-2 pr-2 justify-center"
+                type="button"
+                onClick={() => {
+                  sendAudio();
+                }}
+              >
+                <PaperAirplaneIcon className="w-6 h-6 rotate-90" />
+              </button>
+            )}
+          </>
+        )}
       </form>
     </div>
   );

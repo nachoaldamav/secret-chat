@@ -32,12 +32,11 @@ export default function ChatItem({ chat }: { chat: Chat }) {
 }
 
 function renderNames(participants: { id: string; name: string }[]) {
-  // render 2 names and append "and" x more if there are more than 2
-  const names = participants.slice(0, 2).map((p) => p.name);
-  if (participants.length > 2) {
-    names.push("and");
-    names.push(`${participants.length - 2} more`);
-  }
+  // render 2 names and append "and" n more if there are more than 2
+  const names = participants.map((p) => p.name);
+  const last = names.pop();
+  const rest = names.join(", ");
+  const and = names.length > 1 ? " y " : "";
 
-  return names.join(", ");
+  return `${rest}${and}${last}`;
 }
