@@ -1,19 +1,9 @@
-import { Media, Message } from "@twilio/conversations";
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Message } from "@twilio/conversations";
 import getUserId from "../queries/getUserId";
 import { Participant } from "../types/Room";
 import { LinkIt } from "react-linkify-it";
-import Image from "next/image";
-
-function scrollToBottom() {
-  setTimeout(() => {
-    const container = document.getElementById("messages");
-    if (container) {
-      container.scrollTop = container.scrollHeight - container.clientHeight;
-    }
-  }, 0);
-}
+import Links from "./LinkComponent";
+import RenderMedia from "./RenderMedia";
 
 export default function MessageComponent({ message, participants }: Props) {
   const userId = getUserId();
@@ -71,130 +61,6 @@ export default function MessageComponent({ message, participants }: Props) {
       </div>
     </div>
   );
-}
-
-function Links({ url }: { url: string }) {
-  // Remove all query strings from the url
-  const urlWithoutQueryString = url;
-  const [data, setData] = useState<{
-    title: string;
-    description: string;
-    image: string;
-  }>();
-
-  useEffect(() => {
-    fetch(`/api/generate-thumbnail?url=${urlWithoutQueryString}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setData(data);
-        scrollToBottom();
-      });
-  }, [urlWithoutQueryString]);
-
-  if (!data?.title || !data.description || !data.image) {
-    return null;
-  }
-
-  return (
-    <Link href={url}>
-      <a
-        className="flex flex-col h-fit w-full gap-2 border mt-2 border-white rounded-xl"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <Image
-          src={data.image}
-          width={200}
-          height={160}
-          className="w-full h-fit rounded-t-xl"
-          objectFit="cover"
-          layout="intrinsic"
-          unoptimized
-          alt={data.title}
-        />
-        <div className="flex flex-col h-fit w-full gap-2 p-2">
-          <h2 className="text-sm font-semibold text-white">{data.title}</h2>
-          {data.description && (
-            <p className="text-xs font-light text-white">{data.description}</p>
-          )}
-        </div>
-      </a>
-    </Link>
-  );
-}
-
-function RenderMedia({ media, id }: { media: Media[]; id: string }) {
-  const options = {
-    root: (document && document?.body) || null,
-    rootMargin: "0px",
-    threshold: 0,
-  };
-
-  function callback(entries, observer) {}
-
-  let observer = new IntersectionObserver(callback, options);
-
-  const targetElement = document.getElementById(`message-${id}`);
-  const raw = media[0];
-  const [url, setUrl] = useState<string>();
-
-  if (targetElement) observer.observe(targetElement as Element);
-
-  useEffect(() => {
-    async function fetchFile() {
-      const cached = await raw.getCachedTemporaryUrl();
-
-      if (!cached) {
-        const url = await raw.getContentTemporaryUrl();
-        setUrl(url as string);
-        return;
-      }
-      setUrl(cached);
-      scrollToBottom();
-    }
-
-    if (raw) {
-      fetchFile();
-    }
-  }, [raw]);
-
-  if (!url) {
-    return null;
-  }
-
-  const filetype = raw.contentType;
-
-  if (filetype.startsWith("image")) {
-    return (
-      <Image
-        src={url}
-        width={200}
-        height={160}
-        className="w-full h-fit rounded-t-xl"
-        layout="intrinsic"
-        unoptimized
-        alt={raw.filename || ""}
-      />
-    );
-  } else if (filetype.startsWith("video")) {
-    return (
-      <video
-        src={url}
-        width={200}
-        height={160}
-        className="w-full h-fit rounded-t-xl"
-        controls
-      />
-    );
-  } else if (filetype.startsWith("audio")) {
-    return (
-      <div className="inline-flex justify-center items-center">
-        <audio src={url} className="w-60 h-20 rounded-t-xl" controls />
-      </div>
-    );
-  } else {
-    return null;
-  }
 }
 
 type Props = {
