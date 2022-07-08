@@ -10,13 +10,9 @@ export default async function joinRoom(
   isCreator: boolean = false,
   setConversation: (conversation: any) => void,
   setMessages: (messages: any) => void,
-  scrollDiv: any
+  scrollDiv: any,
+  handleMessageAdded: (message: Message) => void
 ) {
-  const handleMessageAdded = (message: Message) => {
-    setMessages((messages: any) => [...messages, message]);
-    scrollToBottom(scrollDiv);
-  };
-
   const conversation = await createOrJoinRoom(
     roomId,
     accessToken as string,
@@ -28,9 +24,18 @@ export default async function joinRoom(
   const messages = await conversation.getMessages();
   setMessages(messages.items);
 
-  scrollToBottom(scrollDiv);
+  setTimeout(() => {
+    scrollToBottom(scrollDiv);
+  }, 100);
 
   conversation.on("messageAdded", (message: Message) =>
     handleMessageAdded(message)
+  );
+
+  conversation.on("messageRemoved", (message: Message) =>
+    // Remove message from state
+    setMessages((messages: any) =>
+      messages.filter((m: any) => m.sid !== message.sid)
+    )
   );
 }

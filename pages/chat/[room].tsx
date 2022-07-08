@@ -1,5 +1,6 @@
 import { ApolloError, gql } from "@apollo/client";
 import {
+  ArrowDownIcon,
   MicrophoneIcon,
   PaperAirplaneIcon,
   TrashIcon,
@@ -18,6 +19,7 @@ import ChatSkeleton from "../../components/chatLoader";
 import MessageComponent from "../../components/Message";
 import scrollToBottom from "../../utils/scrollToBottom";
 import joinRoom from "../../utils/joinRoom";
+import useScroll from "../../hooks/useScroll";
 
 const GET_ROOM = gql`
   query getRoom($roomId: uuid! = room) {
@@ -47,6 +49,13 @@ type QUERY_PROPS = {
   data?: RoomData;
 };
 
+function manualScroll() {
+  const el = document.getElementById("messages");
+  if (el) {
+    el.scrollTop = el.scrollHeight - el.offsetHeight + 100;
+  }
+}
+
 export default function RoomPage() {
   const router = useRouter();
   const userId = getUserId();
@@ -61,7 +70,7 @@ export default function RoomPage() {
     null
   );
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
-  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const { scroll, setScroll } = useScroll();
   let scrollDiv = useRef(null);
   const { config } = useTwilioConfig();
   const { accessToken } = config;
@@ -72,7 +81,11 @@ export default function RoomPage() {
 
   const handleMessageAdded = (message: Message) => {
     setMessages((messages) => [...messages, message]);
-    scrollToBottom(scrollDiv);
+
+    if (!scroll) {
+      console.log("scrolling");
+      scrollToBottom(scrollDiv);
+    }
   };
 
   useEffect(() => {
@@ -112,7 +125,8 @@ export default function RoomPage() {
         isCreator as boolean,
         setConversation,
         setMessages,
-        scrollDiv
+        scrollDiv,
+        handleMessageAdded
       );
 
     return () => {
@@ -195,8 +209,9 @@ export default function RoomPage() {
 
   function cleanAudio() {
     setAudioChunks([]);
-    setAudioBlob(null);
   }
+
+  console.log("Has scrolled", scroll);
 
   return (
     <div className="w-full h-full flex flex-col justify-start items-center">
@@ -207,9 +222,17 @@ export default function RoomPage() {
           </a>
         </Link>
       </div>
+      {scroll && (
+        <button
+          className="absolute bottom-24 inline-flex gap-2 right-0 mx-auto w-fit px-4 py-2 rounded-xl left-0 z-[99999] bg-gray-700"
+          onClick={() => manualScroll()}
+        >
+          <ArrowDownIcon className="h-6 w-6" /> Volver al inicio
+        </button>
+      )}
       <section
         id="messages"
-        className="h-[80%] md:h-[90%] w-full pb-[1.5em] md:pb-[6.5em] flex flex-col overflow-y-auto overflow-x-hidden gap-4 p-2 scrollbar-thin scrollbar-thumb-blue-700 scrollbar-track-gray-800"
+        className="h-[80%] relative md:h-[80%] w-full flex flex-col overflow-y-auto overflow-x-hidden gap-4 p-2 scrollbar-thin scrollbar-thumb-blue-700 scrollbar-track-gray-800"
         ref={scrollDiv}
       >
         {messages.length === 0 && (
@@ -233,7 +256,7 @@ export default function RoomPage() {
       </section>
       <form
         id="input"
-        className="w-full z-20 inline-flex items-center justify-between gap-1 flex-row absolute bottom-0 left-0 px-2 py-6 bg-gray-100 dark:bg-gray-800 rounded-t-xl sm:rounded-b-xl h-22"
+        className="w-full z-20 inline-flex items-center justify-between gap-1 flex-row absolute bottom-0 left-0 px-2 py-6 bg-gray-100 dark:bg-primary rounded-2xl h-22"
         onSubmit={(e) => {
           e.preventDefault();
 

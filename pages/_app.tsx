@@ -6,6 +6,7 @@ import { NhostNextProvider } from "@nhost/nextjs";
 import { NhostApolloProvider } from "@nhost/react-apollo";
 import { nhost } from "../libs/nhost";
 import { TwilioProvider } from "../context/twilioConfig";
+import { UserScrollProvider } from "../context/userScroll";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -18,7 +19,9 @@ function MyApp({ Component, pageProps }: AppProps) {
         >
           <TwilioProvider>
             <AppLayout>
-              <Component {...pageProps} />
+              <UserScrollProvider>
+                <Component {...pageProps} />
+              </UserScrollProvider>
             </AppLayout>
           </TwilioProvider>
         </ThemeProvider>

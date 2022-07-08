@@ -12,6 +12,7 @@
     "@nhost/nextjs": "latest",
     "@nhost/react": "latest",
     "@nhost/react-apollo": "^4.6.0",
+    "@react-aria/interactions": "^3.9.1",
     "@twilio/conversations": "^2.1.0",
     "bun-framework-next": "^12.1.5",
     "cheerio": "^1.0.0-rc.12",
