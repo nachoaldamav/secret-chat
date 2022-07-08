@@ -22,7 +22,6 @@ export default function AudioPlayer({ url }) {
 
   useEffect(() => {
     create();
-
     return () => {
       if (wavesurfer.current) {
         wavesurfer.current.destroy();

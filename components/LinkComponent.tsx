@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import useScroll from "../hooks/useScroll";
 
 function scrollToBottom() {
   setTimeout(() => {
@@ -12,6 +13,7 @@ function scrollToBottom() {
 }
 
 export default function Links({ url }: { url: string }) {
+  const { scroll } = useScroll();
   // Remove all query strings from the url
   const urlWithoutQueryString = url;
   const [data, setData] = useState<{
@@ -25,7 +27,7 @@ export default function Links({ url }: { url: string }) {
       .then((res) => res.json())
       .then((data) => {
         setData(data);
-        scrollToBottom();
+        if (!scroll) scrollToBottom();
       });
   }, [urlWithoutQueryString]);
 

@@ -19,10 +19,8 @@ export default function RenderMedia({
     entries: any[],
     observer: { unobserve: (arg0: any) => void }
   ) {
-    console.log("entries", entries);
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
-        console.log("Intersecting");
         setIsVisible(true);
         observer.unobserve(entry.target);
       }
@@ -47,6 +45,10 @@ export default function RenderMedia({
     } else {
       console.log("No target element");
     }
+    return () => {
+      if (targetElement) observer.unobserve(targetElement as Element);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [targetElement]);
 
   useEffect(() => {
