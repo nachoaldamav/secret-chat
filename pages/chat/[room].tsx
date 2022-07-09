@@ -84,6 +84,7 @@ export default function RoomPage() {
 
     if (!scroll) {
       scrollToBottom(scrollDiv);
+      conversation?.setAllMessagesRead();
     }
   };
 
