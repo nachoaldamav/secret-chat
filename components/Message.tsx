@@ -1,4 +1,4 @@
-import { Message } from "@twilio/conversations";
+import { AggregatedDeliveryReceipt, Message } from "@twilio/conversations";
 import getUserId from "../queries/getUserId";
 import { Participant } from "../types/Room";
 import { LinkIt } from "react-linkify-it";
@@ -14,14 +14,55 @@ type Props = {
 };
 
 export default function MessageComponent({ message, participants }: Props) {
+  const [targetElement, setTargetElement] = useState<HTMLDivElement | null>(
+    null
+  );
   const [removed, setRemoved] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   const userId = getUserId();
   const isCreator = userId === message.author;
   const regex = /(https?:\/\/[^\s]+)/g;
 
+  const aggregatedDeliveryReceipt: AggregatedDeliveryReceipt | null =
+    message.aggregatedDeliveryReceipt;
+
   const links = (message && message.body && message.body.match(regex)) || [];
 
   const mediaUrl = message.attachedMedia || [];
+
+  function callback(
+    entries: any[],
+    observer: { unobserve: (arg0: any) => void }
+  ) {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        setIsVisible(true);
+        observer.unobserve(entry.target);
+      }
+    });
+  }
+
+  useEffect(() => {
+    const el = document.getElementById(`message-${message.sid}`);
+    if (el) {
+      setTargetElement(el as HTMLDivElement);
+    }
+    const options = {
+      root: (document && document?.body) || null,
+      rootMargin: "0px",
+      threshold: 0,
+    };
+    let observer = new IntersectionObserver(callback, options);
+    if (targetElement) {
+      observer.observe(targetElement as Element);
+    } else {
+      console.log("No target element");
+    }
+    return () => {
+      if (targetElement) observer.unobserve(targetElement as Element);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [targetElement]);
 
   const removeMessage = () => {
     if (!removed) {
@@ -97,7 +138,11 @@ export default function MessageComponent({ message, participants }: Props) {
             </>
           )}
           {message.type === "media" && (
-            <RenderMedia media={mediaUrl} id={message.sid} />
+            <RenderMedia
+              media={mediaUrl}
+              id={message.sid}
+              isVisible={isVisible}
+            />
           )}
         </div>
         {isCreator && isHovered ? (
