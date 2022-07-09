@@ -134,7 +134,6 @@ export default function MessageComponent({ message, participants }: Props) {
                   {message.body}
                 </p>
               </LinkIt>
-              {links.length > 0 && <Links url={links[0]} />}
             </>
           )}
           {message.type === "media" && (
@@ -145,6 +144,7 @@ export default function MessageComponent({ message, participants }: Props) {
             />
           )}
         </div>
+        {links.length > 0 && <Links url={links[0]} />}
         {isCreator && isHovered ? (
           <span className="text-xs text-white py-1 px-1">
             CTRL + Del para eliminar

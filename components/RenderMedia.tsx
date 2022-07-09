@@ -42,15 +42,16 @@ export default function RenderMedia({
 
   if (filetype.startsWith("image")) {
     return (
-      <Image
-        src={url}
-        width={200}
-        height={160}
-        className="w-full h-fit rounded-t-xl"
-        layout="intrinsic"
-        unoptimized
-        alt={raw.filename || ""}
-      />
+      <div
+        style={{ position: "relative", width: "100%", paddingBottom: "100%" }}
+      >
+        <Image
+          src={url}
+          layout="fill"
+          objectFit="contain"
+          alt={raw.filename || ""}
+        />
+      </div>
     );
   } else if (filetype.startsWith("video")) {
     return (

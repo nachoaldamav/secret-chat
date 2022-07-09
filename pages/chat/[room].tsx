@@ -4,6 +4,7 @@ import {
   MicrophoneIcon,
   PaperAirplaneIcon,
   TrashIcon,
+  UploadIcon,
 } from "@heroicons/react/outline";
 import { useAuthQuery } from "@nhost/react-apollo";
 import type { Participant } from "../../types/Room";
@@ -65,6 +66,7 @@ export default function RoomPage() {
   const [isCreator, setIsCreator] = useState<boolean | null>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [message, setMessage] = useState<string | null>(null);
+  const [media, setMedia] = useState<File[] | null>(null);
   const [recording, setRecording] = useState<boolean>(false);
   const [audioRecorder, setAudioRecorder] = useState<MediaRecorder | null>(
     null
@@ -158,6 +160,17 @@ export default function RoomPage() {
       conversation.sendMessage(String(message).trim()).catch((err: any) => {
         console.log(err);
       });
+      if (media) {
+        media.forEach((file) => {
+          const formData = new FormData();
+          formData.append("file", file);
+          conversation.sendMessage(formData).then(() => {
+            // Remove the file from the state after sending
+            // @ts-ignore-next-line
+            setMedia((prevMedia) => prevMedia?.filter((m) => m !== file));
+          });
+        });
+      }
     } else {
       console.log("No conversation");
     }
@@ -276,22 +289,53 @@ export default function RoomPage() {
           className="hidden"
         />
         {!recording ? (
-          <input
-            type="text"
-            id="message"
-            className="w-full rounded-xl bg-transparent"
-            placeholder="Escribe tu mensaje..."
-            onChange={(e) => {
-              setMessage(e.target.value);
-              conversation?.typing();
-            }}
-          />
+          <>
+            <input
+              type="text"
+              id="message"
+              className="w-full rounded-xl bg-transparent"
+              placeholder="Escribe tu mensaje..."
+              onChange={(e) => {
+                setMessage(e.target.value);
+                conversation?.typing();
+              }}
+              onTouchEnd={() => {
+                if (!scroll) {
+                  manualScroll();
+                }
+              }}
+            />
+            <input
+              type="file"
+              className="hidden"
+              id="file-selector"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  // @ts-ignore-next-line
+                  if (media) setMedia((prevMedia) => [...prevMedia, file]);
+                  else setMedia([file]);
+                }
+              }}
+            />
+            <button
+              className="w-12 h-12 flex items-center justify-center"
+              onClick={() => {
+                const fileSelector = document.getElementById(
+                  "file-selector"
+                ) as HTMLInputElement;
+                fileSelector.click();
+              }}
+            >
+              <UploadIcon className="h-6 w-6" />
+            </button>
+          </>
         ) : (
           <span className="font-bold text-center w-full text-xl">
             Grabando audio...
           </span>
         )}
-        {message ? (
+        {message || media ? (
           <button
             className="w-fit h-full rounded-xl py-2 bg-blue-600 inline-flex items-center text-white pl-2 pr-2 justify-center"
             type="submit"
