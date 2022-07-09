@@ -6,50 +6,14 @@ import AudioPlayer from "./AudioPlayer";
 export default function RenderMedia({
   media,
   id,
+  isVisible,
 }: {
   media: Media[];
   id: string;
+  isVisible: boolean;
 }) {
-  const [targetElement, setTargetElement] = useState<HTMLDivElement | null>(
-    null
-  );
-  const [isVisible, setIsVisible] = useState(false);
-
-  function callback(
-    entries: any[],
-    observer: { unobserve: (arg0: any) => void }
-  ) {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        setIsVisible(true);
-        observer.unobserve(entry.target);
-      }
-    });
-  }
   const raw = media[0];
   const [url, setUrl] = useState<string>();
-
-  useEffect(() => {
-    const el = document.getElementById(`message-${id}`);
-    if (el) {
-      setTargetElement(el as HTMLDivElement);
-    }
-    const options = {
-      root: (document && document?.body) || null,
-      rootMargin: "0px",
-      threshold: 0,
-    };
-    let observer = new IntersectionObserver(callback, options);
-    if (targetElement) {
-      observer.observe(targetElement as Element);
-    } else {
-      console.log("No target element");
-    }
-    return () => {
-      if (targetElement) observer.unobserve(targetElement as Element);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [targetElement]);
 
   useEffect(() => {
     async function fetchFile() {
