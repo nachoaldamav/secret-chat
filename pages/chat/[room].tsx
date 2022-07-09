@@ -211,8 +211,6 @@ export default function RoomPage() {
     setAudioChunks([]);
   }
 
-  console.log("Has scrolled", scroll);
-
   return (
     <div className="w-full h-full flex flex-col justify-start items-center">
       <div className="w-full h-14 p-2 flex flex-row justify-between items-center">
@@ -256,6 +254,7 @@ export default function RoomPage() {
       </section>
       <form
         id="input"
+        autoComplete="off"
         className="w-full z-20 inline-flex items-center justify-between gap-1 flex-row absolute bottom-0 left-0 px-2 py-6 bg-gray-100 dark:bg-primary rounded-2xl h-22"
         onSubmit={(e) => {
           e.preventDefault();
@@ -270,13 +269,22 @@ export default function RoomPage() {
           }
         }}
       >
+        <input
+          autoComplete="false"
+          name="hidden"
+          type="text"
+          className="hidden"
+        />
         {!recording ? (
           <input
             type="text"
             id="message"
             className="w-full rounded-xl bg-transparent"
             placeholder="Escribe tu mensaje..."
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={(e) => {
+              setMessage(e.target.value);
+              conversation?.typing();
+            }}
           />
         ) : (
           <span className="font-bold text-center w-full text-xl">
