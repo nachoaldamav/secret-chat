@@ -1,7 +1,6 @@
 import { Message } from "@twilio/conversations";
 import { Participant } from "../types/Room";
 import createOrJoinRoom from "./room";
-import scrollToBottom from "./scrollToBottom";
 
 export default async function joinRoom(
   roomId: string,
@@ -24,9 +23,22 @@ export default async function joinRoom(
   const messages = await conversation.getMessages();
   setMessages(messages.items);
 
+  const current = scrollDiv.current as HTMLElement;
+
   setTimeout(() => {
-    scrollToBottom(scrollDiv);
+    if (current) {
+      current.scrollTop = current.scrollHeight + 100;
+      console.log({
+        scrollTop: current.scrollTop,
+        scrollHeight: current.scrollHeight,
+        clientHeight: current.clientHeight,
+      });
+    } else {
+      console.log("No scrollDiv");
+    }
   }, 100);
+
+  console.log("Added old messages, scrolling to bottom...");
 
   conversation.on("messageAdded", (message: Message) =>
     handleMessageAdded(message)

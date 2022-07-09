@@ -19,6 +19,7 @@ export const TwilioProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const auth = async () => {
+      console.log("Running twilio auth");
       nhost.auth.isAuthenticatedAsync().then((isAuthenticated) => {
         setIsAuthenticated(isAuthenticated);
       });

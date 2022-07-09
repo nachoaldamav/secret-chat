@@ -83,7 +83,6 @@ export default function RoomPage() {
     setMessages((messages) => [...messages, message]);
 
     if (!scroll) {
-      console.log("scrolling");
       scrollToBottom(scrollDiv);
     }
   };

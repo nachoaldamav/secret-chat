@@ -16,28 +16,30 @@ export const UserScrollProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
+  const router = useRouter();
   const [scroll, setScroll] = useState(false);
 
   useEffect(() => {
-    const el = document.getElementById("messages");
-    if (el) {
-      el.addEventListener("scroll", () => {
-        if (el.scrollTop >= el.scrollHeight - el.offsetHeight) {
-          setScroll(false);
-        } else {
-          setScroll(true);
-        }
-      });
-    } else {
-      console.log("No element found");
-    }
-
-    return () => {
+    setTimeout(() => {
+      const el = document.getElementById("messages");
       if (el) {
-        el.removeEventListener("scroll", () => {});
+        el.addEventListener("scroll", () => {
+          // Add 100px buffer to prevent flicker
+          if (el.scrollTop >= el.scrollHeight - el.offsetHeight - 50) {
+            setScroll(false);
+          } else {
+            setScroll(true);
+          }
+        });
+      } else {
+        console.log("No element found");
       }
-    };
-  }, []);
+
+      return () => {
+        el?.removeEventListener("scroll", () => {});
+      };
+    }, 1000);
+  }, [router.pathname]);
 
   return (
     <userScroll.Provider value={{ scroll, setScroll }}>
