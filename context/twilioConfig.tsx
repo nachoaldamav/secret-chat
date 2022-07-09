@@ -6,12 +6,12 @@ export const TwilioContext = createContext<TwilioContext>({
     accessToken: null,
     expirationDate: 0,
   },
-  setConfig: () => {},
+  setConfig: (config: { accessToken: string; expirationDate: number }) => {},
 } as TwilioContext);
 
 export const TwilioProvider = ({ children }: { children: React.ReactNode }) => {
   const [config, setConfig] = useState({
-    accessToken: null,
+    accessToken: "",
     expirationDate: 0,
   });
 
@@ -22,6 +22,7 @@ export const TwilioProvider = ({ children }: { children: React.ReactNode }) => {
       console.log("Running twilio auth");
       nhost.auth.isAuthenticatedAsync().then((isAuthenticated) => {
         setIsAuthenticated(isAuthenticated);
+        console.log("Is authenticated:", isAuthenticated);
       });
     };
     auth();
@@ -66,20 +67,21 @@ export const TwilioProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     if (nhostToken) {
+      console.log("Requesting new token");
       // Fetch token if it's expired
       if (currentDate > expirationDate) {
         fetchToken(nhostToken);
       }
 
       // Fetch if there is no token
-      if (!accessToken) {
+      if (!accessToken || accessToken === "") {
         fetchToken(nhostToken);
       }
     }
   }, [isAuthenticated]);
 
   return (
-    <TwilioContext.Provider value={{ config }}>
+    <TwilioContext.Provider value={{ config, setConfig }}>
       {children}
     </TwilioContext.Provider>
   );
@@ -90,5 +92,5 @@ type TwilioContext = {
     accessToken: string | null;
     expirationDate: number;
   };
-  setConfig?: (config: { accessToken: string; expirationDate: number }) => void;
+  setConfig: (config: { accessToken: string; expirationDate: number }) => void;
 };

@@ -10,23 +10,23 @@ import { UserScrollProvider } from "../context/userScroll";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <NhostNextProvider nhost={nhost} initial={pageProps.nhostSession}>
-      <NhostApolloProvider nhost={nhost}>
-        <ThemeProvider
-          storageKey="color-theme"
-          forcedTheme={"dark"}
-          attribute="class"
-        >
-          <TwilioProvider>
+    <TwilioProvider>
+      <NhostNextProvider nhost={nhost} initial={pageProps.nhostSession}>
+        <NhostApolloProvider nhost={nhost}>
+          <ThemeProvider
+            storageKey="color-theme"
+            forcedTheme={"dark"}
+            attribute="class"
+          >
             <AppLayout>
               <UserScrollProvider>
                 <Component {...pageProps} />
               </UserScrollProvider>
             </AppLayout>
-          </TwilioProvider>
-        </ThemeProvider>
-      </NhostApolloProvider>
-    </NhostNextProvider>
+          </ThemeProvider>
+        </NhostApolloProvider>
+      </NhostNextProvider>
+    </TwilioProvider>
   );
 }
 

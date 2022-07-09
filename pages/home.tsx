@@ -3,8 +3,11 @@ import { useState, useEffect } from "react";
 import getChats, { Chat } from "../queries/getChats";
 import Spinner from "../components/Spinner";
 import ChatItem from "../components/ChatItem";
+import { useTwilioConfig } from "../hooks/useTwilioConfig";
+import { nhost } from "../libs/nhost";
 
 function Home() {
+  const { config, setConfig } = useTwilioConfig();
   const [chats, setChats] = useState<Chat[] | null | undefined>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<any>(null);
@@ -22,8 +25,26 @@ function Home() {
       setLoading(false);
     }
 
-    fetchData();
-  }, []);
+    if (config.accessToken) {
+      fetchData();
+    } else {
+      fetch("/api/get-token", {
+        headers: {
+          Authorization: `Bearer ${nhost.auth.getAccessToken()}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((res) => {
+          setConfig({
+            accessToken: res.token,
+            expirationDate: new Date().getTime() + res.ttl * 1000,
+          });
+        })
+        .catch((err) => {
+          console.error("Something failed while getting token: ", err);
+        });
+    }
+  }, [config, setConfig]);
 
   return (
     <section className="w-full h-full flex flex-col justify-start items-start px-4 py-3">
