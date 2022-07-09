@@ -14,7 +14,7 @@ function scrollToBottom() {
 
 export default function Links({ url }: { url: string }) {
   const { scroll } = useScroll();
-  // Remove all query strings from the url
+
   const urlWithoutQueryString = url;
   const [data, setData] = useState<{
     title: string;
@@ -29,6 +29,7 @@ export default function Links({ url }: { url: string }) {
         setData(data);
         if (!scroll) scrollToBottom();
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlWithoutQueryString]);
 
   if (!data?.title || !data.description || !data.image) {
@@ -39,6 +40,9 @@ export default function Links({ url }: { url: string }) {
     <Link href={url}>
       <a
         className="flex flex-col h-fit w-full gap-2 border mt-2 border-white rounded-xl"
+        style={{
+          maxWidth: "65%",
+        }}
         target="_blank"
         rel="noopener noreferrer"
       >
