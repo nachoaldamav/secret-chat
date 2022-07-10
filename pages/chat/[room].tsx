@@ -71,7 +71,7 @@ export default function RoomPage() {
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
   const [sending, setSending] = useState<boolean>(false);
   const [showInfo, setShowInfo] = useState<boolean>(false);
-  const { scroll } = useScroll();
+  const { scroll, setContainer } = useScroll();
   let scrollDiv = useRef(null);
   const { config } = useTwilioConfig();
   const { accessToken } = config;
@@ -133,19 +133,13 @@ export default function RoomPage() {
         handleMessageAdded
       );
 
+    setContainer(document.getElementById("messages") as HTMLDivElement);
+
     return () => {
       conversation?.off("messageAdded", handleMessageAdded);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken, room, userId]);
-
-  if (loading) {
-    return (
-      <div className="w-full h-full flex flex-col justify-center items-center">
-        <Spinner />
-      </div>
-    );
-  }
 
   if (error) {
     return (
@@ -241,6 +235,11 @@ export default function RoomPage() {
 
   return (
     <div className="w-full h-full flex flex-col justify-start items-center">
+      {loading && (
+        <div className="w-full h-full flex flex-col justify-center items-center">
+          <Spinner />
+        </div>
+      )}
       <div className="w-full h-14 p-2 flex flex-row justify-start gap-2 items-center">
         <Link as={"/home"} href="/home">
           <a className="h-6 w-6">

@@ -3,12 +3,16 @@ import { createContext, useEffect, useState } from "react";
 
 export const userScroll = createContext<userScroll>({
   scroll: true,
+  container: null,
   setScroll: () => {},
+  setContainer: () => {},
 } as userScroll);
 
 type userScroll = {
   scroll: boolean;
+  container: HTMLElement | null;
   setScroll: (scroll: boolean) => void;
+  setContainer: (container: HTMLDivElement | null) => void;
 };
 
 export const UserScrollProvider = ({ children }: Props) => {
@@ -31,10 +35,14 @@ export const UserScrollProvider = ({ children }: Props) => {
   }
 
   useEffect(() => {
-    const container = document.getElementById("messages");
-    if (container) {
-      setContainer(container as HTMLDivElement);
-    }
+    window.addEventListener("load", () => {
+      const container = document.getElementById("messages");
+      if (container) {
+        setContainer(container as HTMLDivElement);
+      } else {
+        console.error("container not found");
+      }
+    });
   }, []);
 
   useEffect(() => {
@@ -57,7 +65,7 @@ export const UserScrollProvider = ({ children }: Props) => {
   }, [container, room, router.pathname]);
 
   return (
-    <userScroll.Provider value={{ scroll, setScroll }}>
+    <userScroll.Provider value={{ scroll, container, setContainer, setScroll }}>
       {children}
     </userScroll.Provider>
   );
