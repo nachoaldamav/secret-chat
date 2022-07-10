@@ -13,17 +13,17 @@ function MyApp({ Component, pageProps }: AppProps) {
     <TwilioProvider>
       <NhostNextProvider nhost={nhost} initial={pageProps.nhostSession}>
         <NhostApolloProvider nhost={nhost}>
-          <ThemeProvider
-            storageKey="color-theme"
-            forcedTheme={"dark"}
-            attribute="class"
-          >
-            <AppLayout>
-              <UserScrollProvider>
+          <UserScrollProvider>
+            <ThemeProvider
+              storageKey="color-theme"
+              forcedTheme={"dark"}
+              attribute="class"
+            >
+              <AppLayout>
                 <Component {...pageProps} />
-              </UserScrollProvider>
-            </AppLayout>
-          </ThemeProvider>
+              </AppLayout>
+            </ThemeProvider>
+          </UserScrollProvider>
         </NhostApolloProvider>
       </NhostNextProvider>
     </TwilioProvider>

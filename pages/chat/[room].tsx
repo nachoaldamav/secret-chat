@@ -3,6 +3,7 @@ import {
   ArrowDownIcon,
   MicrophoneIcon,
   PaperAirplaneIcon,
+  PlusIcon,
   TrashIcon,
   UploadIcon,
 } from "@heroicons/react/outline";
@@ -22,6 +23,8 @@ import scrollToBottom from "../../utils/scrollToBottom";
 import joinRoom from "../../utils/joinRoom";
 import useScroll from "../../hooks/useScroll";
 import checkSafeImage from "../../utils/checkSafeImage";
+import Image from "next/image";
+import { UserScrollProvider } from "../../context/userScroll";
 
 const GET_ROOM = gql`
   query getRoom($roomId: uuid! = room) {
@@ -67,6 +70,7 @@ export default function RoomPage() {
   );
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
   const [sending, setSending] = useState<boolean>(false);
+  const [showInfo, setShowInfo] = useState<boolean>(false);
   const { scroll } = useScroll();
   let scrollDiv = useRef(null);
   const { config } = useTwilioConfig();
@@ -154,7 +158,6 @@ export default function RoomPage() {
   if (data && data.room.length === 0) router.push("/home");
 
   async function sendMessage(message: string) {
-    console.log("Sending message, user scroll", scroll);
     setSending(true);
     if (conversation) {
       if (message !== "")
@@ -238,26 +241,73 @@ export default function RoomPage() {
 
   return (
     <div className="w-full h-full flex flex-col justify-start items-center">
-      <div className="w-full h-14 p-2 flex flex-row justify-between items-center">
+      <div className="w-full h-14 p-2 flex flex-row justify-start gap-2 items-center">
         <Link as={"/home"} href="/home">
           <a className="h-6 w-6">
             <ArrowLeftIcon />
           </a>
         </Link>
+        <div className="flex flex-row gap-2 justify-center w-full items-center">
+          <Image
+            src={
+              participants.find((p) => p.isCreator)?.avatar ||
+              "https://via.placeholder.com/64"
+            }
+            className="h-6 w-6 rounded-full"
+            height={30}
+            width={30}
+            alt="avatar"
+          />
+          <div
+            className="flex flex-col w-full cursor-pointer"
+            onClick={() => {
+              setShowInfo(true);
+            }}
+          >
+            <h1 className="text-xl font-bold">Sala 1</h1>
+            <h2 className="text-sm font-medium truncate w-80 max-w-max">
+              {participants.map((p) => p.name).join(", ")}
+            </h2>
+          </div>
+        </div>
+        {isCreator && (
+          <div className="flex flex-row gap-2 justify-end items-center">
+            <button className="h-6 w-6">
+              <PlusIcon className="h-6 w-6" />
+            </button>
+          </div>
+        )}
       </div>
       {scroll && (
         <button
-          className="absolute bottom-24 mb-4 inline-flex gap-2 right-0 mx-auto w-fit px-4 py-2 rounded-xl left-0 z-[99999] bg-gray-700"
-          onClick={() => scrollToBottom()}
+          className="absolute bottom-24 mb-4 inline-flex gap-2 right-0 mx-auto w-fit px-4 py-2 rounded-xl left-0 z-[9999] bg-gray-700"
+          onClick={() => {
+            scrollToBottom();
+            conversation?.setAllMessagesRead();
+          }}
         >
           <ArrowDownIcon className="h-6 w-6" /> Volver al inicio
         </button>
+      )}
+      {showInfo && (
+        <span className="absolute inset-0 w-full h-full bg-black bg-opacity-40 rounded-xl z-[9999]">
+          <span
+            className="absolute inset-0 w-full h-full cursor-pointer z-[9999]"
+            onClick={() => {
+              setShowInfo(false);
+            }}
+          />
+          <div className="absolute inset-0 my-10 mx-auto p-2 z-[99999] rounded-xl w-3/4 h-3/4 bg-primary">
+            Hola
+          </div>
+        </span>
       )}
       <section
         id="messages"
         className="h-[80%] relative md:h-[80%] w-full flex flex-col overflow-y-auto overflow-x-hidden gap-4 p-2 scrollbar-thin scrollbar-thumb-blue-700 scrollbar-track-gray-800"
         ref={scrollDiv}
       >
+        <span id="load-more" />
         {messages.length === 0 && (
           <ChatSkeleton
             speed={2}
@@ -277,7 +327,7 @@ export default function RoomPage() {
               conversation={conversation as Conversation}
             />
           ))}
-        <span className="" id="scroll-anchor" />
+        <span id="scroll-anchor" />
       </section>
       <form
         id="input"
@@ -320,21 +370,6 @@ export default function RoomPage() {
               onTouchEnd={() => {
                 if (!scroll) {
                   scrollToBottom();
-                }
-              }}
-            />
-            <input
-              type="file"
-              className="hidden"
-              id="file-selector"
-              onChange={(e) => {
-                console.log(e.target.files);
-                const file = e.target.files?.[0];
-                if (file) {
-                  // @ts-ignore-next-line
-                  setMedia([file]);
-                  // Clear input
-                  e.target.value = "";
                 }
               }}
             />
@@ -429,6 +464,21 @@ export default function RoomPage() {
           </>
         )}
       </form>
+      <input
+        type="file"
+        className="hidden"
+        id="file-selector"
+        onChange={(e) => {
+          console.log(e.target.files);
+          const file = e.target.files?.[0];
+          if (file) {
+            // @ts-ignore-next-line
+            setMedia([file]);
+            // Clear input
+            e.target.value = "";
+          }
+        }}
+      />
     </div>
   );
 }

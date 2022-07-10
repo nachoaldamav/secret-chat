@@ -1,8 +1,4 @@
-import {
-  AggregatedDeliveryReceipt,
-  Conversation,
-  Message,
-} from "@twilio/conversations";
+import { Conversation, Message } from "@twilio/conversations";
 import getUserId from "../queries/getUserId";
 import { Participant } from "../types/Room";
 import { LinkIt } from "react-linkify-it";
@@ -32,9 +28,6 @@ export default function MessageComponent({
   const isCreator = userId === message.author;
   const regex = /(https?:\/\/[^\s]+)/g;
 
-  const aggregatedDeliveryReceipt: AggregatedDeliveryReceipt | null =
-    message.aggregatedDeliveryReceipt;
-
   const links = (message && message.body && message.body.match(regex)) || [];
 
   const mediaUrl = message.attachedMedia || [];
@@ -63,8 +56,6 @@ export default function MessageComponent({
     let observer = new IntersectionObserver(callback, options);
     if (targetElement) {
       observer.observe(targetElement as Element);
-    } else {
-      console.log("No target element");
     }
     return () => {
       if (targetElement) observer.unobserve(targetElement as Element);
@@ -74,7 +65,9 @@ export default function MessageComponent({
 
   useEffect(() => {
     if (isVisible) {
-      conversation.updateLastReadMessageIndex(message.index);
+      conversation
+        .advanceLastReadMessageIndex(message.index)
+        .catch(console.error);
     }
   }, [isVisible, conversation, message]);
 

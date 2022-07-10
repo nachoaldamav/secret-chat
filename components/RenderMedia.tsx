@@ -2,6 +2,7 @@ import { DownloadIcon, ExclamationIcon } from "@heroicons/react/outline";
 import { Media } from "@twilio/conversations";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import useScroll from "../hooks/useScroll";
 import getImageDimensions from "../utils/getImageDimensions";
 import scrollToBottom from "../utils/scrollToBottom";
 import AudioPlayer from "./AudioPlayer";
@@ -15,6 +16,7 @@ export default function RenderMedia({
   id: string;
   isVisible: boolean;
 }) {
+  const { scroll } = useScroll();
   const containerEl = document.getElementById(`messages`);
   const raw = media[0];
   const [url, setUrl] = useState<string>();
@@ -33,7 +35,7 @@ export default function RenderMedia({
           if (raw.contentType.startsWith("image")) {
             const { width, height } = await getImageDimensions(res.url);
             setDimensions({ width, height });
-            scrollToBottom();
+            if (!scroll) scrollToBottom();
             setHasBlur(raw?.filename?.includes("-blur") ?? false);
           }
         })
@@ -43,7 +45,7 @@ export default function RenderMedia({
           if (raw.contentType.startsWith("image")) {
             const { width, height } = await getImageDimensions(url as string);
             setDimensions({ width, height });
-            scrollToBottom();
+            if (!scroll) scrollToBottom();
             setHasBlur(raw?.filename?.includes("-blur") ?? false);
           }
           return;
@@ -52,9 +54,8 @@ export default function RenderMedia({
 
     if (raw && isVisible) {
       fetchFile();
-      console.log("fetching file because it's visible");
     }
-  }, [raw, isVisible, containerEl]);
+  }, [raw, isVisible, containerEl, scroll]);
 
   if (!url) {
     return <div className="h-10 w-20"></div>;

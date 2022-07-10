@@ -28,11 +28,6 @@ export default async function joinRoom(
   setTimeout(() => {
     if (current) {
       current.scrollTop = current.scrollHeight + 100;
-      console.log({
-        scrollTop: current.scrollTop,
-        scrollHeight: current.scrollHeight,
-        clientHeight: current.clientHeight,
-      });
       conversation
         .setAllMessagesRead()
         .then(() => {
