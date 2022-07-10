@@ -46,14 +46,3 @@ export default async function createOrJoinRoom(
     });
   });
 }
-
-const ERROR_CODES = {
-  not_creator: "User is not the creator of the room, trying to join...",
-};
-
-type Props = {
-  room: string;
-  accessToken: string;
-  participants?: Participant[] | null;
-  isCreator?: boolean;
-};
