@@ -1,7 +1,6 @@
 export default async function checkSafeImage(image: File) {
   // "api/safe-image"
   const base64 = Buffer.from(await image.arrayBuffer()).toString("base64");
-  console.log(base64);
   return fetch("/api/safe-image", {
     method: "POST",
     body: JSON.stringify({
