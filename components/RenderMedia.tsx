@@ -63,7 +63,7 @@ export default function RenderMedia({
   if (filetype.startsWith("image")) {
     const blur = raw.filename?.includes("-blur") ?? false;
     return (
-      <div className="h-fit w-fit relative">
+      <div className="h-fit w-fit flex flex-col relative items-center justify-center">
         {hasBlur && (
           <span
             className="inset-0 absolute z-[9999] text-white flex flex-col justify-center items-center text-center text-sm cursor-pointer"
@@ -80,7 +80,7 @@ export default function RenderMedia({
           layout="intrinsic"
           width={dimensions?.width ?? 200}
           height={dimensions?.height ?? 200}
-          className="rounded-xl cursor-pointer transition duration-300 ease-in-out"
+          className="rounded-xl cursor-pointer transition self-center duration-300 ease-in-out"
           style={{
             filter: hasBlur ? "blur(50px)" : "blur(0px)",
           }}
@@ -88,11 +88,6 @@ export default function RenderMedia({
           id={`image-${id}`}
           priority={isVisible ? true : false}
           alt={raw.filename || ""}
-          onClick={() => {
-            if (blur) {
-              setHasBlur(!hasBlur);
-            }
-          }}
         />
       </div>
     );
