@@ -24,10 +24,7 @@ export default async function createOrJoinRoom(
 
           if (participants) {
             for (const participant of participants) {
-              await addParticipant({
-                room,
-                participant: participant.id,
-              });
+              await addParticipant(room, participant.id);
               await conversation?.add(participant.id);
             }
           }
