@@ -1,15 +1,9 @@
-export default function scrollToBottom(scrollDiv: any) {
-  // @ts-ignore-next-line
-  const current = scrollDiv.current as HTMLElement;
-  const el = document.getElementById("messages");
-
-  const hasScrolled = el && el.scrollTop <= el.scrollHeight - el.offsetHeight;
-
-  setTimeout(() => {
-    if (current && !hasScrolled) {
-      current.scrollTop = current.scrollHeight - 200;
-    } else {
-      console.log("No scrollDiv");
-    }
-  }, 0);
+export default function scrollToBottom(scrollDiv?: any) {
+  // Scroll to "scroll-anchor"
+  const scrollAnchor = document.getElementById("scroll-anchor");
+  if (scrollAnchor) {
+    scrollAnchor.scrollIntoView({ behavior: "smooth" });
+  } else {
+    console.error("scroll-anchor not found");
+  }
 }

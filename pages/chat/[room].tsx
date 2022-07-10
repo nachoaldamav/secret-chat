@@ -51,13 +51,6 @@ type QUERY_PROPS = {
   data?: RoomData;
 };
 
-function manualScroll() {
-  const el = document.getElementById("messages");
-  if (el) {
-    el.scrollTop = el.scrollHeight - el.offsetHeight + 100;
-  }
-}
-
 export default function RoomPage() {
   const router = useRouter();
   const userId = getUserId();
@@ -73,7 +66,8 @@ export default function RoomPage() {
     null
   );
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
-  const { scroll, setScroll } = useScroll();
+  const [sending, setSending] = useState<boolean>(false);
+  const { scroll } = useScroll();
   let scrollDiv = useRef(null);
   const { config } = useTwilioConfig();
   const { accessToken } = config;
@@ -85,9 +79,12 @@ export default function RoomPage() {
   const handleMessageAdded = (message: Message) => {
     setMessages((messages) => [...messages, message]);
 
+    console.log("User has scrolled", scroll);
     if (!scroll) {
+      console.log("Scrolling to bottom");
       scrollToBottom(scrollDiv);
-      conversation?.setAllMessagesRead();
+    } else {
+      console.log("Not scrolling to bottom");
     }
   };
 
@@ -156,28 +153,35 @@ export default function RoomPage() {
 
   if (data && data.room.length === 0) router.push("/home");
 
-  function sendMessage(message: string) {
+  async function sendMessage(message: string) {
+    console.log("Sending message, user scroll", scroll);
+    setSending(true);
     if (conversation) {
       if (message !== "")
         conversation.sendMessage(String(message).trim()).catch((err: any) => {
           console.log(err);
         });
       if (media) {
-        media.forEach(async (file) => {
-          const ext = file.name.split(".").pop();
-          const basename = file.name.split(".").shift();
-          const isSafe =
-            ext === "jpg" || ext === "png" || ext === "webp"
-              ? await checkSafeImage(file)
-              : true;
-          const filename = `${basename}${!isSafe ? "-blur" : ""}.${ext}`;
-          const formData = new FormData();
-          formData.append("file", file, filename);
-          conversation.sendMessage(formData).then(() => {
-            // @ts-ignore-next-line
-            setMedia((prevMedia) => prevMedia?.filter((m) => m !== file));
-          });
-        });
+        await Promise.all(
+          media.map(async (file) => {
+            const ext = file.name.split(".").pop();
+            const basename = file.name.split(".").shift();
+            const isSafe =
+              ext === "jpg" || ext === "png" || ext === "webp"
+                ? await checkSafeImage(file)
+                : true;
+            const filename = `${basename}${!isSafe ? "-blur" : ""}.${ext}`;
+            const formData = new FormData();
+            formData.append("file", file, filename);
+            await conversation.sendMessage(formData);
+            return filename;
+          })
+        );
+        // Clear media
+        setMedia([]);
+        setSending(false);
+      } else {
+        setSending(false);
       }
     } else {
       console.log("No conversation");
@@ -243,8 +247,8 @@ export default function RoomPage() {
       </div>
       {scroll && (
         <button
-          className="absolute bottom-24 inline-flex gap-2 right-0 mx-auto w-fit px-4 py-2 rounded-xl left-0 z-[99999] bg-gray-700"
-          onClick={() => manualScroll()}
+          className="absolute bottom-24 mb-4 inline-flex gap-2 right-0 mx-auto w-fit px-4 py-2 rounded-xl left-0 z-[99999] bg-gray-700"
+          onClick={() => scrollToBottom()}
         >
           <ArrowDownIcon className="h-6 w-6" /> Volver al inicio
         </button>
@@ -270,8 +274,10 @@ export default function RoomPage() {
               key={message.sid}
               message={message}
               participants={participants}
+              conversation={conversation as Conversation}
             />
           ))}
+        <span className="" id="scroll-anchor" />
       </section>
       <form
         id="input"
@@ -313,7 +319,7 @@ export default function RoomPage() {
               }}
               onTouchEnd={() => {
                 if (!scroll) {
-                  manualScroll();
+                  scrollToBottom();
                 }
               }}
             />
@@ -322,21 +328,29 @@ export default function RoomPage() {
               className="hidden"
               id="file-selector"
               onChange={(e) => {
+                console.log(e.target.files);
                 const file = e.target.files?.[0];
                 if (file) {
                   // @ts-ignore-next-line
-                  if (media) setMedia((prevMedia) => [...prevMedia, file]);
-                  else setMedia([file]);
+                  setMedia([file]);
+                  // Clear input
+                  e.target.value = "";
                 }
               }}
             />
             <button
               className="w-12 h-12 flex items-center justify-center"
+              id="file-button"
               onClick={() => {
-                const fileSelector = document.getElementById(
-                  "file-selector"
-                ) as HTMLInputElement;
-                fileSelector.click();
+                try {
+                  console.log("Clicked");
+                  const fileSelector = document.getElementById(
+                    "file-selector"
+                  ) as HTMLInputElement;
+                  fileSelector.click();
+                } catch (e) {
+                  console.log(e);
+                }
               }}
             >
               <UploadIcon className="h-6 w-6" />
@@ -352,7 +366,28 @@ export default function RoomPage() {
             className="w-fit h-full rounded-xl py-2 bg-blue-600 inline-flex items-center text-white pl-2 pr-2 justify-center"
             type="submit"
           >
-            <PaperAirplaneIcon className="w-6 h-6 rotate-90" />
+            {!sending ? (
+              <PaperAirplaneIcon className="w-6 h-6 rotate-90" />
+            ) : (
+              <span className="h-6 w-6 inline-flex justify-center items-center text-white">
+                <svg
+                  role="status"
+                  className="w-6 h-6 text-inherit animate-spin dark:text-gray-600 fill-white"
+                  viewBox="0 0 100 101"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                    fill="currentFill"
+                  />
+                </svg>
+              </span>
+            )}
           </button>
         ) : (
           <>

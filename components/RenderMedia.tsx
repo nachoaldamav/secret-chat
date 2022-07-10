@@ -3,6 +3,7 @@ import { Media } from "@twilio/conversations";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import getImageDimensions from "../utils/getImageDimensions";
+import scrollToBottom from "../utils/scrollToBottom";
 import AudioPlayer from "./AudioPlayer";
 
 export default function RenderMedia({
@@ -32,7 +33,7 @@ export default function RenderMedia({
           if (raw.contentType.startsWith("image")) {
             const { width, height } = await getImageDimensions(res.url);
             setDimensions({ width, height });
-            scroll(containerEl as HTMLElement);
+            scrollToBottom();
             setHasBlur(raw?.filename?.includes("-blur") ?? false);
           }
         })
@@ -42,7 +43,7 @@ export default function RenderMedia({
           if (raw.contentType.startsWith("image")) {
             const { width, height } = await getImageDimensions(url as string);
             setDimensions({ width, height });
-            scroll(containerEl as HTMLElement);
+            scrollToBottom();
             setHasBlur(raw?.filename?.includes("-blur") ?? false);
           }
           return;
@@ -51,6 +52,7 @@ export default function RenderMedia({
 
     if (raw && isVisible) {
       fetchFile();
+      console.log("fetching file because it's visible");
     }
   }, [raw, isVisible, containerEl]);
 
@@ -116,7 +118,7 @@ export default function RenderMedia({
 function scroll(container: HTMLElement) {
   container &&
     container.scrollTo({
-      top: container.scrollHeight,
+      top: container.scrollHeight + 100,
       behavior: "smooth",
     });
 }
