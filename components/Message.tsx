@@ -97,7 +97,7 @@ export default function MessageComponent({
     <div
       key={message.sid}
       id={`message-${message.sid}`}
-      className="flex w-full pr-2"
+      className="flex w-full px-2"
       style={{
         alignItems: "center",
         justifyContent: message.author === userId ? "flex-end" : "flex-start",
@@ -145,11 +145,18 @@ export default function MessageComponent({
             </>
           )}
           {message.type === "media" && (
-            <RenderMedia
-              media={mediaUrl}
-              id={message.sid}
-              isVisible={isVisible}
-            />
+            <div className="flex flex-col">
+              {message.author !== userId && (
+                <p className="text-sm font-semibold pl-2 pb-1 text-white">
+                  {participants.find((p) => p.id === message.author)?.name}
+                </p>
+              )}
+              <RenderMedia
+                media={mediaUrl}
+                id={message.sid}
+                isVisible={isVisible}
+              />
+            </div>
           )}
         </div>
         {isVisible && links.length > 0 && <Links url={links[0]} />}

@@ -24,7 +24,7 @@ import joinRoom from "../../utils/joinRoom";
 import useScroll from "../../hooks/useScroll";
 import checkSafeImage from "../../utils/checkSafeImage";
 import Image from "next/image";
-import { UserScrollProvider } from "../../context/userScroll";
+import AddNewParticipant from "../../components/AddNewParticipant";
 
 const GET_ROOM = gql`
   query getRoom($roomId: uuid! = room) {
@@ -71,6 +71,7 @@ export default function RoomPage() {
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
   const [sending, setSending] = useState<boolean>(false);
   const [showInfo, setShowInfo] = useState<boolean>(false);
+  const [addParticipant, setAddParticipant] = useState<boolean>(false);
   const { scroll, setContainer } = useScroll();
   let scrollDiv = useRef(null);
   const { config } = useTwilioConfig();
@@ -82,8 +83,6 @@ export default function RoomPage() {
 
   const handleMessageAdded = (message: Message) => {
     setMessages((messages) => [...messages, message]);
-
-    console.log("User has scrolled", scroll);
     if (!scroll) {
       console.log("Scrolling to bottom");
       scrollToBottom(scrollDiv);
@@ -271,7 +270,12 @@ export default function RoomPage() {
         </div>
         {isCreator && (
           <div className="flex flex-row gap-2 justify-end items-center">
-            <button className="h-6 w-6">
+            <button
+              className="h-6 w-6"
+              onClick={() => {
+                setAddParticipant(true);
+              }}
+            >
               <PlusIcon className="h-6 w-6" />
             </button>
           </div>
@@ -299,6 +303,22 @@ export default function RoomPage() {
           <div className="absolute inset-0 my-10 mx-auto p-2 z-[99999] rounded-xl w-3/4 h-3/4 bg-primary">
             Hola
           </div>
+        </span>
+      )}
+      {addParticipant && (
+        <span className="absolute inset-0 w-full h-full bg-black bg-opacity-40 rounded-xl z-[9999]">
+          <span
+            className="absolute inset-0 w-full h-full cursor-pointer z-[9999]"
+            onClick={() => {
+              setAddParticipant(false);
+            }}
+          />
+          <AddNewParticipant
+            conversation={conversation as Conversation}
+            room={room as string}
+            participants={participants}
+            setParticipants={setParticipants}
+          />
         </span>
       )}
       <section
@@ -482,7 +502,7 @@ export default function RoomPage() {
   );
 }
 
-interface RoomData {
+export interface RoomData {
   room: Room[];
 }
 

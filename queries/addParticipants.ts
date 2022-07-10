@@ -1,7 +1,10 @@
 import { nhost } from "../libs/nhost";
 import { gql } from "@apollo/client";
 
-export default async function addParticipant({ room, participant }: Props) {
+export default async function addParticipant(
+  room: string,
+  participant: string
+) {
   const { data, error } = await nhost.graphql.request(
     gql`
       mutation addParticipant(
