@@ -157,9 +157,10 @@ export default function RoomPage() {
 
   function sendMessage(message: string) {
     if (conversation) {
-      conversation.sendMessage(String(message).trim()).catch((err: any) => {
-        console.log(err);
-      });
+      if (message !== "")
+        conversation.sendMessage(String(message).trim()).catch((err: any) => {
+          console.log(err);
+        });
       if (media) {
         media.forEach((file) => {
           const formData = new FormData();
@@ -275,8 +276,8 @@ export default function RoomPage() {
           // @ts-ignore-next-line
           const input = e.target.elements.message as HTMLInputElement;
 
-          if (message) {
-            sendMessage(message as string);
+          if (message || media) {
+            sendMessage((message as string) || "");
             setMessage(null);
             input.value = "";
           }
@@ -294,7 +295,11 @@ export default function RoomPage() {
               type="text"
               id="message"
               className="w-full rounded-xl bg-transparent"
-              placeholder="Escribe tu mensaje..."
+              placeholder={
+                !media
+                  ? "Escribe un mensaje"
+                  : (media && media[0]?.name) || "Archivo elegido..."
+              }
               onChange={(e) => {
                 setMessage(e.target.value);
                 conversation?.typing();

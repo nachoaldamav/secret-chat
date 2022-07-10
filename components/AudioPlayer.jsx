@@ -46,7 +46,7 @@ export default function AudioPlayer({ url }) {
   };
 
   return (
-    <div className="flex flex-row justify-center gap-2 content-center h-10 w-full bg-transparent z-10">
+    <div className="flex flex-row justify-center gap-2 content-center mx-1 my-2 h-10 w-full bg-transparent z-10">
       <button onClick={() => handlePlayPause()}>
         {!playing ? (
           <PlayIcon className="h-8 w-8" />

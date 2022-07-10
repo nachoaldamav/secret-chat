@@ -105,12 +105,13 @@ export default function MessageComponent({ message, participants }: Props) {
       >
         <div
           {...hoverProps}
-          className="flex flex-col w-fit bg-blue-700 px-3 py-4 relative"
+          className="flex flex-col w-fit bg-blue-700 relative"
           style={{
             borderRadius:
               message.author === userId
                 ? "1rem 1rem  0 1rem"
                 : "0 1rem 1rem 1rem",
+            padding: message.type === "text" ? "0.75rem 1rem" : "0.2rem",
             maxWidth: "75%",
             minWidth: "15%",
           }}
@@ -146,8 +147,9 @@ export default function MessageComponent({ message, participants }: Props) {
         </div>
         {links.length > 0 && <Links url={links[0]} />}
         {isCreator && isHovered ? (
-          <span className="text-xs text-white py-1 px-1">
-            CTRL + Del para eliminar
+          <span className="text-xs inline-flex text-white h-6 mt-1 items-center justify-end gap-1 px-1">
+            <span className="border px-0.5 rounded">CTRL</span> +{" "}
+            <span className="border px-0.5 rounded">DEL</span> para eliminar
           </span>
         ) : (
           <TimeAgo date={message.dateCreated as Date} />
@@ -170,5 +172,5 @@ function TimeAgo({ date }: { date: Date }) {
     };
   }, [date]);
 
-  return <span className="text-xs text-white py-1 px-1">{time}</span>;
+  return <span className="text-xs text-white h-6 mt-1 px-1">{time}</span>;
 }
