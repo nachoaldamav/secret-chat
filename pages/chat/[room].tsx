@@ -21,6 +21,7 @@ import MessageComponent from "../../components/Message";
 import scrollToBottom from "../../utils/scrollToBottom";
 import joinRoom from "../../utils/joinRoom";
 import useScroll from "../../hooks/useScroll";
+import checkSafeImage from "../../utils/checkSafeImage";
 
 const GET_ROOM = gql`
   query getRoom($roomId: uuid! = room) {
@@ -162,11 +163,17 @@ export default function RoomPage() {
           console.log(err);
         });
       if (media) {
-        media.forEach((file) => {
+        media.forEach(async (file) => {
+          const ext = file.name.split(".").pop();
+          const basename = file.name.split(".").shift();
+          const isSafe =
+            ext === "jpg" || ext === "png" || ext === "webp"
+              ? await checkSafeImage(file)
+              : true;
+          const filename = `${basename}${!isSafe ? "-blur" : ""}.${ext}`;
           const formData = new FormData();
-          formData.append("file", file);
+          formData.append("file", file, filename);
           conversation.sendMessage(formData).then(() => {
-            // Remove the file from the state after sending
             // @ts-ignore-next-line
             setMedia((prevMedia) => prevMedia?.filter((m) => m !== file));
           });

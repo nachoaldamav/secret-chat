@@ -1,4 +1,4 @@
-import { DownloadIcon } from "@heroicons/react/outline";
+import { DownloadIcon, ExclamationIcon } from "@heroicons/react/outline";
 import { Media } from "@twilio/conversations";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -8,6 +8,7 @@ import AudioPlayer from "./AudioPlayer";
 export default function RenderMedia({
   media,
   isVisible,
+  id,
 }: {
   media: Media[];
   id: string;
@@ -20,6 +21,7 @@ export default function RenderMedia({
     width: number;
     height: number;
   } | null>(null);
+  const [hasBlur, setHasBlur] = useState(false);
 
   useEffect(() => {
     async function fetchFile() {
@@ -31,6 +33,7 @@ export default function RenderMedia({
             const { width, height } = await getImageDimensions(res.url);
             setDimensions({ width, height });
             scroll(containerEl as HTMLElement);
+            setHasBlur(raw?.filename?.includes("-blur") ?? false);
           }
         })
         .catch(async (err) => {
@@ -40,6 +43,7 @@ export default function RenderMedia({
             const { width, height } = await getImageDimensions(url as string);
             setDimensions({ width, height });
             scroll(containerEl as HTMLElement);
+            setHasBlur(raw?.filename?.includes("-blur") ?? false);
           }
           return;
         });
@@ -57,19 +61,40 @@ export default function RenderMedia({
   const filetype = raw.contentType;
 
   if (filetype.startsWith("image")) {
+    const blur = raw.filename?.includes("-blur") ?? false;
     return (
-      <Image
-        src={url}
-        layout="intrinsic"
-        width={dimensions?.width ?? 200}
-        height={dimensions?.height ?? 200}
-        className="rounded-xl cursor-pointer"
-        objectFit="cover"
-        alt={raw.filename || ""}
-        onClick={() => {
-          console.log(raw.filename);
-        }}
-      />
+      <div className="h-fit w-fit relative">
+        {hasBlur && (
+          <span
+            className="inset-0 absolute z-[9999] text-white flex flex-col justify-center items-center text-center text-sm cursor-pointer"
+            onClick={() => setHasBlur(false)}
+          >
+            <ExclamationIcon className="h-8 w-8" />
+            <span className="font-bold">
+              Esta imagen podría contener información sensible.
+            </span>
+          </span>
+        )}
+        <Image
+          src={url}
+          layout="intrinsic"
+          width={dimensions?.width ?? 200}
+          height={dimensions?.height ?? 200}
+          className="rounded-xl cursor-pointer transition duration-300 ease-in-out"
+          style={{
+            filter: hasBlur ? "blur(50px)" : "blur(0px)",
+          }}
+          objectFit="cover"
+          id={`image-${id}`}
+          priority={isVisible ? true : false}
+          alt={raw.filename || ""}
+          onClick={() => {
+            if (blur) {
+              setHasBlur(!hasBlur);
+            }
+          }}
+        />
+      </div>
     );
   } else if (filetype.startsWith("video")) {
     return <video src={url} className="w-full h-fit rounded-t-xl" controls />;
