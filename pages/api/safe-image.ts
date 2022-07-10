@@ -23,15 +23,25 @@ export default async function SafeImage(
     return;
   }
 
-  const [result] = await client.safeSearchDetection({
-    image: {
-      content: image.replace(/^data:image\/[a-z]+;base64,/, ""),
-    },
-  });
+  try {
+    const [result] = await client.safeSearchDetection({
+      image: {
+        content: image.replace(/^data:image\/[a-z]+;base64,/, ""),
+      },
+    });
 
-  const safe = result.safeSearchAnnotation;
+    const safe = result.safeSearchAnnotation;
 
-  res.status(200).json({
-    safe,
-  });
+    res.status(200).json({
+      safe,
+    });
+  } catch (err) {
+    console.log({
+      client_email: process.env.GOOGLE_CLOUD_MAIL,
+      private_key: process.env.GOOGLE_CLOUD_SECRET?.replace(/\\n/g, "\n") || "",
+    });
+    res.status(500).json({
+      error: "Something went wrong",
+    });
+  }
 }
