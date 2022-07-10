@@ -1,4 +1,8 @@
-import { AggregatedDeliveryReceipt, Message } from "@twilio/conversations";
+import {
+  AggregatedDeliveryReceipt,
+  Conversation,
+  Message,
+} from "@twilio/conversations";
 import getUserId from "../queries/getUserId";
 import { Participant } from "../types/Room";
 import { LinkIt } from "react-linkify-it";
@@ -11,9 +15,14 @@ import { useHover } from "@react-aria/interactions";
 type Props = {
   message: Message;
   participants: Participant[];
+  conversation: Conversation;
 };
 
-export default function MessageComponent({ message, participants }: Props) {
+export default function MessageComponent({
+  message,
+  participants,
+  conversation,
+}: Props) {
   const [targetElement, setTargetElement] = useState<HTMLDivElement | null>(
     null
   );
@@ -37,7 +46,6 @@ export default function MessageComponent({ message, participants }: Props) {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
         setIsVisible(true);
-        observer.unobserve(entry.target);
       }
     });
   }
@@ -63,6 +71,12 @@ export default function MessageComponent({ message, participants }: Props) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [targetElement]);
+
+  useEffect(() => {
+    if (isVisible) {
+      conversation.updateLastReadMessageIndex(message.index);
+    }
+  }, [isVisible, conversation, message]);
 
   const removeMessage = () => {
     if (!removed) {
@@ -145,7 +159,7 @@ export default function MessageComponent({ message, participants }: Props) {
             />
           )}
         </div>
-        {links.length > 0 && <Links url={links[0]} />}
+        {isVisible && links.length > 0 && <Links url={links[0]} />}
         {isCreator && isHovered ? (
           <span className="text-xs inline-flex text-white h-6 mt-1 items-center justify-end gap-1 px-1">
             <span className="border px-0.5 rounded">CTRL</span> +{" "}

@@ -33,6 +33,14 @@ export default async function joinRoom(
         scrollHeight: current.scrollHeight,
         clientHeight: current.clientHeight,
       });
+      conversation
+        .setAllMessagesRead()
+        .then(() => {
+          console.log("All messages read");
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     } else {
       console.log("No scrollDiv");
     }
