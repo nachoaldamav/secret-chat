@@ -1,9 +1,8 @@
-import { Request, Response } from "express";
+/* eslint-disable import/no-anonymous-default-export */
 
-export default function request(req: Request, res: Response) {
-  const body = req.body;
-  console.log(body);
+import { Request, Response } from "express";
+export default (req: Request, res: Response) => {
   res
     .status(200)
     .send(`Nhost, from Typescript, pays it's respects to ${req.query.name}!`);
-}
+};
