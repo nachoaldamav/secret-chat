@@ -10,16 +10,19 @@ export default function InfiniteScroll({
   lastElementIndex,
 }: Props) {
   const [lastElement, setLastElement] = useState<HTMLDivElement | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    function handleScroll(container: HTMLElement) {
-      if (container.scrollTop === 0 && hasMore) {
+    async function handleScroll(container: HTMLElement) {
+      if (container.scrollTop === 0 && hasMore && !isLoading) {
         console.log({
           itemsLength,
           total,
           result: itemsLength < total,
         });
-        loadMore();
+        setIsLoading(true);
+        await loadMore();
+        setIsLoading(false);
         // Get element by "scroll-id"
         if (lastElement) {
           lastElement.scrollIntoView();
@@ -35,7 +38,7 @@ export default function InfiniteScroll({
     return () => {
       container?.removeEventListener("scroll", () => handleScroll(container));
     };
-  }, [itemsLength, total, loadMore, lastElement, hasMore]);
+  }, [hasMore, isLoading, loadMore, itemsLength, total, lastElement]);
 
   useEffect(() => {
     const scrollId = document.querySelector(
@@ -50,7 +53,9 @@ export default function InfiniteScroll({
 
   return (
     <>
-      <span id="end"></span>
+      <span id="end" className="my-10 w-full">
+        {isLoading ? "Cargando mensajes antiguos..." : ""}
+      </span>
       {children}
     </>
   );
@@ -61,6 +66,6 @@ type Props = {
   itemsLength: number;
   hasMore: boolean;
   total: number;
-  loadMore: () => void;
+  loadMore: () => Promise<void>;
   lastElementIndex: Message;
 };
