@@ -3,10 +3,6 @@ import * as cheerio from "cheerio";
 const needle = require("needle");
 require("dotenv").config();
 
-export const config = {
-  runtime: "experimental-edge",
-};
-
 export default async function GenerateThumbnail(
   req: NextApiRequest,
   res: NextApiResponse

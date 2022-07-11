@@ -3,10 +3,6 @@ import twilio from "twilio";
 import jwt_decode from "jwt-decode";
 require("dotenv").config();
 
-export const config = {
-  runtime: "experimental-edge",
-};
-
 const {
   NEXT_PUBLIC_ACCOUNT_SID,
   NEXT_PUBLIC_API_KEY_SID,
