@@ -1,7 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import { GraphQLClient, gql } from "graphql-request";
 require("dotenv").config();
 
-import { GraphQLClient, gql } from "graphql-request";
+export const config = {
+  runtime: "experimental-edge",
+};
 
 const client = new GraphQLClient(
   "https://npvetwtkmbcbxsrqpprc.nhost.run/v1/graphql",
