@@ -3,12 +3,16 @@ import { nhost } from "../libs/nhost";
 import getUserId from "./getUserId";
 
 const QUERY = gql`
-  query getChats {
-    room {
+  query getChats($_eq: uuid = _eq) {
+    room(
+      order_by: { updated_at: desc }
+      where: { chats: { user_id: { _eq: $_eq } } }
+    ) {
       id
       icon
       creator_id
-      chats {
+      updated_at
+      chats(where: { user_id: { _eq: $_eq } }) {
         user_data {
           custom_avatar
           id
@@ -28,7 +32,9 @@ export default async function getChats() {
     return null;
   }
 
-  const { data, error } = await nhost.graphql.request(QUERY);
+  const { data, error } = await nhost.graphql.request(QUERY, {
+    _eq: id,
+  });
 
   return { data, error };
 }
@@ -66,6 +72,7 @@ export type Chat = {
   id: string;
   icon: string | null;
   creator_id: string;
+  updated_at: string;
   chats: [
     {
       user_data: {

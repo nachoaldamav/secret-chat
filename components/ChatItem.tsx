@@ -45,11 +45,7 @@ export default function ChatItem({ chat }: { chat: Chat }) {
               </span>
             )}
             <Image
-              src={
-                chat.icon ||
-                creator?.avatar ||
-                "https://via.placeholder.com/150"
-              }
+              src={chat.icon || "https://via.placeholder.com/150"}
               alt={creator?.name}
               className="w-12 h-12 rounded-full mr-2"
               width={43}

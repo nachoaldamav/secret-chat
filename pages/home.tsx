@@ -73,4 +73,9 @@ function Home() {
   );
 }
 
+function convertToTimestamp(str: string) {
+  const date = new Date(str);
+  return date.getMilliseconds();
+}
+
 export default withAuth(Home);

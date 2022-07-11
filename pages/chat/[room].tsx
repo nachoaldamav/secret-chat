@@ -254,7 +254,7 @@ export default function RoomPage() {
           <Image
             src={
               participants.find((p) => p.isCreator)?.avatar ||
-              "https://via.placeholder.com/64"
+              "https://via.placeholder.com/150"
             }
             className="h-6 w-6 rounded-full"
             height={30}
