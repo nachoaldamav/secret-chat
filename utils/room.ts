@@ -22,6 +22,7 @@ export default async function createOrJoinRoom(
           try {
             conversation = await client.createConversation({
               uniqueName: room,
+              friendlyName: room,
             });
             await conversation.add(userId as string);
 
