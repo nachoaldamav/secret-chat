@@ -25,6 +25,7 @@ import useScroll from "../../hooks/useScroll";
 import checkSafeImage from "../../utils/checkSafeImage";
 import Image from "next/image";
 import AddNewParticipant from "../../components/AddNewParticipant";
+import InfiniteScroll from "../../components/InfiniteScroll";
 
 const GET_ROOM = gql`
   query getRoom($roomId: uuid! = room) {
@@ -61,8 +62,10 @@ export default function RoomPage() {
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [isCreator, setIsCreator] = useState<boolean | null>(null);
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [messagesCount, setMessagesCount] = useState<number>(0);
   const [message, setMessage] = useState<string | null>(null);
+  const [lastMessage, setLastMessage] = useState<Message | null>(null);
   const [media, setMedia] = useState<File[] | null>(null);
   const [recording, setRecording] = useState<boolean>(false);
   const [audioRecorder, setAudioRecorder] = useState<MediaRecorder | null>(
@@ -83,6 +86,7 @@ export default function RoomPage() {
 
   const handleMessageAdded = (message: Message) => {
     setMessages((messages) => [...messages, message]);
+    setMessagesCount((messagesCount) => messagesCount + 1);
     if (!scroll) {
       console.log("Scrolling to bottom");
       scrollToBottom(scrollDiv);
@@ -129,7 +133,8 @@ export default function RoomPage() {
         setConversation,
         setMessages,
         scrollDiv,
-        handleMessageAdded
+        handleMessageAdded,
+        setMessagesCount
       );
 
     setContainer(document.getElementById("messages") as HTMLDivElement);
@@ -232,6 +237,8 @@ export default function RoomPage() {
     setAudioChunks([]);
   }
 
+  console.log({ messagesCount, length: messages.length });
+
   return (
     <div className="w-full h-full flex flex-col justify-start items-center">
       {loading && (
@@ -326,26 +333,47 @@ export default function RoomPage() {
         className="h-[80%] relative md:h-[80%] w-full flex flex-col overflow-y-auto overflow-x-hidden gap-4 p-2 scrollbar-thin scrollbar-thumb-blue-700 scrollbar-track-gray-800"
         ref={scrollDiv}
       >
-        <span id="load-more" />
-        {messages.length === 0 && (
-          <ChatSkeleton
-            speed={2}
-            backgroundColor="#13111c"
-            foregroundColor="#181622"
-          />
-        )}
-        {messages
-          .filter((message, index) => {
-            return messages.findIndex((m) => m.sid === message.sid) === index;
-          })
-          .map((message: Message) => (
-            <MessageComponent
-              key={message.sid}
-              message={message}
-              participants={participants}
-              conversation={conversation as Conversation}
+        <InfiniteScroll
+          loadMore={async () => {
+            if (conversation && messagesCount > messages.length) {
+              const newMessages = await conversation.getMessages(
+                30,
+                messages.length
+              );
+
+              // Add messages on top
+              setMessages((prevMessages) => [
+                ...newMessages.items,
+                ...prevMessages,
+              ]);
+              setLastMessage(newMessages.items[0]);
+            }
+          }}
+          hasMore={messagesCount > messages.length}
+          itemsLength={messages.length}
+          total={messagesCount}
+          lastElementIndex={lastMessage as Message}
+        >
+          {messages.length === 0 && (
+            <ChatSkeleton
+              speed={2}
+              backgroundColor="#13111c"
+              foregroundColor="#181622"
             />
-          ))}
+          )}
+          {messages
+            .filter((message, index) => {
+              return messages.findIndex((m) => m.sid === message.sid) === index;
+            })
+            .map((message: Message) => (
+              <MessageComponent
+                key={message.sid}
+                message={message}
+                participants={participants}
+                conversation={conversation as Conversation}
+              />
+            ))}
+        </InfiniteScroll>
         <span id="scroll-anchor" />
       </section>
       <form
@@ -377,6 +405,7 @@ export default function RoomPage() {
               type="text"
               id="message"
               className="w-full rounded-xl bg-transparent"
+              maxLength={1600}
               placeholder={
                 !media
                   ? "Escribe un mensaje"
@@ -395,9 +424,9 @@ export default function RoomPage() {
             <button
               className="w-12 h-12 flex items-center justify-center"
               id="file-button"
+              type="button"
               onClick={() => {
                 try {
-                  console.log("Clicked");
                   const fileSelector = document.getElementById(
                     "file-selector"
                   ) as HTMLInputElement;
@@ -488,12 +517,10 @@ export default function RoomPage() {
         className="hidden"
         id="file-selector"
         onChange={(e) => {
-          console.log(e.target.files);
           const file = e.target.files?.[0];
           if (file) {
             // @ts-ignore-next-line
             setMedia([file]);
-            // Clear input
             e.target.value = "";
           }
         }}

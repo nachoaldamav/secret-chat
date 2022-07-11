@@ -10,7 +10,8 @@ export default async function joinRoom(
   setConversation: (conversation: any) => void,
   setMessages: (messages: any) => void,
   scrollDiv: any,
-  handleMessageAdded: (message: Message) => void
+  handleMessageAdded: (message: Message) => void,
+  setMessagesCount: (count: number) => void
 ) {
   const conversation = await createOrJoinRoom(
     roomId,
@@ -22,6 +23,11 @@ export default async function joinRoom(
   setConversation(conversation);
   const messages = await conversation.getMessages();
   setMessages(messages.items);
+
+  conversation.getMessagesCount().then((count) => {
+    console.log("messages count: ", count);
+    setMessagesCount(count);
+  });
 
   const current = scrollDiv.current as HTMLElement;
 

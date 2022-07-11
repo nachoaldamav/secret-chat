@@ -97,6 +97,7 @@ export default function MessageComponent({
     <div
       key={message.sid}
       id={`message-${message.sid}`}
+      data-scroll-id={message.index}
       className="flex w-full px-2"
       style={{
         alignItems: "center",

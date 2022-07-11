@@ -2,7 +2,9 @@ export default function scrollToBottom(scrollDiv?: any) {
   // Scroll to "scroll-anchor"
   const scrollAnchor = document.getElementById("scroll-anchor");
   if (scrollAnchor) {
-    scrollAnchor.scrollIntoView({ behavior: "smooth" });
+    setTimeout(() => {
+      scrollAnchor.scrollIntoView({ behavior: "smooth", block: "end" });
+    }, 100);
   } else {
     console.error("scroll-anchor not found");
   }

@@ -48,11 +48,11 @@ export const UserScrollProvider = ({ children }: Props) => {
   useEffect(() => {
     const options = {
       root: (document && document?.body) || null,
-      rootMargin: "10px",
-      threshold: 0,
+      rootMargin: "200px",
+      threshold: 1.0,
     };
+
     if (container) {
-      console.log("Running state");
       const el = document.getElementById("scroll-anchor");
       if (el) {
         const observer = new IntersectionObserver(callback, options);
