@@ -15,11 +15,6 @@ export default function InfiniteScroll({
   useEffect(() => {
     async function handleScroll(container: HTMLElement) {
       if (container.scrollTop === 0 && hasMore && !isLoading) {
-        console.log({
-          itemsLength,
-          total,
-          result: itemsLength < total,
-        });
         setIsLoading(true);
         await loadMore();
         setIsLoading(false);
@@ -53,8 +48,14 @@ export default function InfiniteScroll({
 
   return (
     <>
-      <span id="end" className="my-10 w-full">
+      <span
+        id="end"
+        className="my-10 w-full flex flex-col justify-center items-center"
+      >
         {isLoading ? "Cargando mensajes antiguos..." : ""}
+        {!isLoading && !hasMore && itemsLength > 0
+          ? "Has llegado al final"
+          : "No hay mensajes, ¡empieza a escribir!"}
       </span>
       {children}
     </>

@@ -124,7 +124,7 @@ export default function RoomPage() {
   useEffect(() => {
     const roomId = room as string;
 
-    if (userId && accessToken && room)
+    if (userId && accessToken && room && isCreator !== null)
       joinRoom(
         roomId,
         accessToken,
@@ -143,7 +143,7 @@ export default function RoomPage() {
       conversation?.off("messageAdded", handleMessageAdded);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accessToken, room, userId]);
+  }, [accessToken, room, userId, isCreator]);
 
   if (error) {
     return (
@@ -237,11 +237,9 @@ export default function RoomPage() {
     setAudioChunks([]);
   }
 
-  console.log({ messagesCount, length: messages.length });
-
   return (
     <div className="w-full h-full flex flex-col justify-start items-center">
-      {loading && (
+      {!data && (
         <div className="w-full h-full flex flex-col justify-center items-center">
           <Spinner />
         </div>
@@ -354,7 +352,7 @@ export default function RoomPage() {
           total={messagesCount}
           lastElementIndex={lastMessage as Message}
         >
-          {messages.length === 0 && (
+          {!conversation && (
             <ChatSkeleton
               speed={2}
               backgroundColor="#13111c"

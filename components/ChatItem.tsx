@@ -26,9 +26,9 @@ export default function ChatItem({ chat }: { chat: Chat }) {
 
   useEffect(() => {
     if (config.accessToken) {
-      getHomeMessages(chat.id, config.accessToken).then((info) =>
-        setInfo(info)
-      );
+      getHomeMessages(chat.id, config.accessToken).then((info) => {
+        if (info.message) setInfo(info);
+      });
     }
   }, [chat.id, config]);
 

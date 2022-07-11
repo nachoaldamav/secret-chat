@@ -13,6 +13,8 @@ export default async function joinRoom(
   handleMessageAdded: (message: Message) => void,
   setMessagesCount: (count: number) => void
 ) {
+  console.log({ isCreator, participants, roomId });
+
   const conversation = await createOrJoinRoom(
     roomId,
     accessToken as string,

@@ -19,24 +19,40 @@ export default async function createOrJoinRoom(
 
         try {
           if (!isCreator) throw new Error("You are not the creator");
-          conversation = await client.createConversation({ uniqueName: room });
-          conversation.add(userId as string);
-
-          if (participants) {
-            for (const participant of participants) {
-              await addParticipant(room, participant.id);
-              await conversation?.add(participant.id);
-            }
-          }
-          resolve(conversation);
-        } catch (e) {
           try {
-            conversation = await client.getConversationByUniqueName(room);
+            conversation = await client.createConversation({
+              uniqueName: room,
+            });
+            await conversation.add(userId as string);
 
+            if (participants) {
+              for await (const participant of participants) {
+                await addParticipant(room, participant.id);
+                await conversation?.add(participant.id);
+              }
+            }
             resolve(conversation);
-          } catch (e) {
-            console.error("Joining room failed: ", e);
-            console.log(client);
+          } catch (err) {
+            console.error("Failed to create room: ", err);
+            throw err;
+          }
+        } catch (e: any) {
+          console.error(e.message);
+          if (e.message === "Conflict") {
+            console.log("Conflict detected, joining room");
+            await client
+              .getConversationByUniqueName(room)
+              .then((conversation) => {
+                resolve(conversation);
+              });
+          } else {
+            try {
+              conversation = await client.getConversationByUniqueName(room);
+              resolve(conversation);
+            } catch (err) {
+              console.error("Failed to get room: ", err);
+              throw err;
+            }
           }
         }
       }
