@@ -26,6 +26,7 @@ import checkSafeImage from "../../utils/checkSafeImage";
 import Image from "next/image";
 import AddNewParticipant from "../../components/AddNewParticipant";
 import InfiniteScroll from "../../components/InfiniteScroll";
+import Typing from "../../components/TypingComponent";
 
 const GET_ROOM = gql`
   query getRoom($roomId: uuid! = room) {
@@ -391,6 +392,7 @@ export default function RoomPage() {
           }
         }}
       >
+        <Typing participants={participants} />
         <input
           autoComplete="false"
           name="hidden"
