@@ -1,6 +1,6 @@
 import withAuth from "../utils/withAuth";
-import { useState, useEffect } from "react";
-import getChats, { Chat } from "../queries/getChats";
+import { useEffect } from "react";
+import { Chat } from "../queries/getChats";
 import Spinner from "../components/Spinner";
 import ChatItem from "../components/ChatItem";
 import { useTwilioConfig } from "../hooks/useTwilioConfig";

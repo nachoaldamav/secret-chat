@@ -45,6 +45,7 @@ export default function MessageComponent({
 
   useEffect(() => {
     const el = document.getElementById(`message-${message.sid}`);
+
     if (el) {
       setTargetElement(el as HTMLDivElement);
     }
@@ -167,7 +168,9 @@ export default function MessageComponent({
             <span className="border px-0.5 rounded">DEL</span> para eliminar
           </span>
         ) : (
-          <TimeAgo date={message.dateCreated as Date} />
+          <span className="inline-flex gap-1 items-center mt-1 h-6 justify-center">
+            <TimeAgo date={message.dateCreated as Date} />
+          </span>
         )}
       </div>
     </div>
@@ -187,5 +190,5 @@ function TimeAgo({ date }: { date: Date }) {
     };
   }, [date]);
 
-  return <span className="text-xs text-white h-6 mt-1 px-1">{time}</span>;
+  return <span className="text-xs text-white px-1">{time}</span>;
 }

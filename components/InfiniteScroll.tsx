@@ -48,15 +48,17 @@ export default function InfiniteScroll({
 
   return (
     <>
-      <span
-        id="end"
-        className="my-10 w-full flex flex-col justify-center items-center"
-      >
-        {isLoading ? "Cargando mensajes antiguos..." : ""}
-        {!isLoading && !hasMore && itemsLength > 0
-          ? "Has llegado al final"
-          : "No hay mensajes, ¡empieza a escribir!"}
-      </span>
+      {itemsLength !== null && (
+        <span
+          id="end"
+          className="my-10 w-full flex flex-col justify-center items-center"
+        >
+          {isLoading ? "Cargando mensajes antiguos..." : ""}
+          {!isLoading && !hasMore && itemsLength > 0
+            ? "Has llegado al final"
+            : "No hay mensajes, ¡empieza a escribir!"}
+        </span>
+      )}
       {children}
     </>
   );
@@ -64,7 +66,7 @@ export default function InfiniteScroll({
 
 type Props = {
   children: React.ReactNode;
-  itemsLength: number;
+  itemsLength: number | null;
   hasMore: boolean;
   total: number;
   loadMore: () => Promise<void>;

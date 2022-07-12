@@ -27,6 +27,7 @@ import Image from "next/image";
 import AddNewParticipant from "../../components/AddNewParticipant";
 import InfiniteScroll from "../../components/InfiniteScroll";
 import Typing from "../../components/TypingComponent";
+import RoomInfo from "../../components/RoomInfo";
 
 const GET_ROOM = gql`
   query getRoom($roomId: uuid! = room) {
@@ -299,17 +300,14 @@ export default function RoomPage() {
         </button>
       )}
       {showInfo && (
-        <span className="absolute inset-0 w-full h-full bg-black bg-opacity-40 rounded-xl z-[9999]">
-          <span
-            className="absolute inset-0 w-full h-full cursor-pointer z-[9999]"
-            onClick={() => {
-              setShowInfo(false);
-            }}
-          />
-          <div className="absolute inset-0 my-10 mx-auto p-2 z-[99999] rounded-xl w-3/4 h-3/4 bg-primary">
-            Hola
-          </div>
-        </span>
+        <RoomInfo
+          room={room as string}
+          roomData={data?.room[0] as Room}
+          participants={participants}
+          onClick={() => {
+            setShowInfo(false);
+          }}
+        />
       )}
       {addParticipant && (
         <span className="absolute inset-0 w-full h-full bg-black bg-opacity-40 rounded-xl z-[9999]">
@@ -349,7 +347,7 @@ export default function RoomPage() {
             }
           }}
           hasMore={messagesCount > messages.length}
-          itemsLength={messages.length}
+          itemsLength={conversation ? messages.length : null}
           total={messagesCount}
           lastElementIndex={lastMessage as Message}
         >
@@ -533,10 +531,11 @@ export interface RoomData {
   room: Room[];
 }
 
-type Room = {
+export type Room = {
   creator_id: string;
   created_at: string;
   icon: string;
+  name: string;
   id: string;
   chats: ChatData[];
 };

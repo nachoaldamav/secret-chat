@@ -18,12 +18,9 @@ export default function timeAgo(date: Date) {
     });
   }
 
-  return (
-    date.toLocaleDateString() +
-    " " +
-    date.toLocaleTimeString("es-ES", {
-      hour: "numeric",
-      minute: "numeric",
-    })
-  );
+  return date.toLocaleDateString("es-ES", {
+    day: "numeric",
+    month: "numeric",
+    year: "numeric",
+  });
 }
