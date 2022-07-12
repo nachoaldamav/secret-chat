@@ -10,6 +10,7 @@
     "@apollo/client": "^3.6.9",
     "@google-cloud/vision": "^2.4.2",
     "@heroicons/react": "^1.0.6",
+    "@nhost/apollo": "^0.5.21",
     "@nhost/nextjs": "latest",
     "@nhost/react": "latest",
     "@nhost/react-apollo": "^4.6.0",

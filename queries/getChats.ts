@@ -57,12 +57,9 @@ export default async function getChats() {
     return null;
   }
 
-  const { data, error } = await nhost.graphql.request(
-    process.env.NODE_ENV === "development" ? QUERY_LOCAL : QUERY_PROD,
-    {
-      _eq: id,
-    }
-  );
+  const { data, error } = await nhost.graphql.request(QUERY_LOCAL, {
+    _eq: id,
+  });
 
   return { data, error };
 }

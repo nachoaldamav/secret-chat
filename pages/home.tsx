@@ -5,30 +5,41 @@ import Spinner from "../components/Spinner";
 import ChatItem from "../components/ChatItem";
 import { useTwilioConfig } from "../hooks/useTwilioConfig";
 import { nhost } from "../libs/nhost";
-import TwilioProvider, { TwilioContext } from "../context/twilioClient";
+import { useAuthSubscription } from "@nhost/react-apollo";
+import { gql } from "@apollo/client";
+import getUserId from "../queries/getUserId";
 
 function Home() {
+  const id = getUserId();
   const { config, setConfig } = useTwilioConfig();
-  const [chats, setChats] = useState<Chat[] | null | undefined>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<any>(null);
+
+  const QUERY_PROD = gql`
+    subscription getRooms($_eq: uuid = _eq) {
+      room(
+        order_by: { updated_at: desc }
+        where: { chats: { user_id: { _eq: $_eq } } }
+        distinct_on: updated_at
+      ) {
+        id
+        icon
+        creator_id
+        updated_at
+        chats {
+          user_data {
+            custom_avatar
+            id
+            user {
+              avatarUrl
+              displayName
+            }
+          }
+        }
+      }
+    }
+  `;
 
   useEffect(() => {
-    async function fetchData() {
-      setLoading(true);
-      const res = await getChats();
-      if (res?.error !== null) {
-        console.log(res);
-        setError(res?.error);
-      } else {
-        setChats(res?.data.room);
-      }
-      setLoading(false);
-    }
-
-    if (config.accessToken) {
-      fetchData();
-    } else {
+    if (!config.accessToken) {
       fetch("/api/get-token", {
         headers: {
           Authorization: `Bearer ${nhost.auth.getAccessToken()}`,
@@ -46,6 +57,14 @@ function Home() {
         });
     }
   }, [config, setConfig]);
+
+  const { data, loading, error } = useAuthSubscription(QUERY_PROD, {
+    variables: {
+      _eq: id,
+    },
+  });
+
+  const chats: Response = data;
 
   return (
     <section className="w-full h-full flex flex-col justify-start items-start px-4 py-3">
@@ -66,12 +85,18 @@ function Home() {
 
       {chats && (
         <ul className="w-full h-full flex flex-col justify-start items-start gap-2 overflow-x-auto pb-16">
-          {chats?.length > 0 &&
-            chats.map((chat) => <ChatItem chat={chat} key={chat.id} />)}
+          {chats.room.length > 0 &&
+            chats.room.map((chat: Chat) => (
+              <ChatItem chat={chat} key={chat.id} />
+            ))}
         </ul>
       )}
     </section>
   );
 }
+
+type Response = {
+  room: Chat[];
+};
 
 export default withAuth(Home);
