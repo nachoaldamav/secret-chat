@@ -2,7 +2,7 @@ import { gql } from "@apollo/client";
 import { nhost } from "../libs/nhost";
 import getUserId from "./getUserId";
 
-const QUERY = gql`
+const QUERY_LOCAL = gql`
   query getChats($_eq: uuid = _eq) {
     room(
       order_by: { updated_at: desc }
@@ -26,15 +26,43 @@ const QUERY = gql`
   }
 `;
 
+const QUERY_PROD = gql`
+  subscription getRooms($_eq: uuid = _eq) {
+    room(
+      order_by: { updated_at: desc }
+      where: { chats: { user_id: { _eq: $_eq } } }
+      distinct_on: updated_at
+    ) {
+      id
+      icon
+      creator_id
+      updated_at
+      chats {
+        user_data {
+          custom_avatar
+          id
+          user {
+            avatarUrl
+            displayName
+          }
+        }
+      }
+    }
+  }
+`;
+
 export default async function getChats() {
   const id = getUserId();
   if (!id) {
     return null;
   }
 
-  const { data, error } = await nhost.graphql.request(QUERY, {
-    _eq: id,
-  });
+  const { data, error } = await nhost.graphql.request(
+    process.env.NODE_ENV === "development" ? QUERY_LOCAL : QUERY_PROD,
+    {
+      _eq: id,
+    }
+  );
 
   return { data, error };
 }

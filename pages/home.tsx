@@ -5,6 +5,7 @@ import Spinner from "../components/Spinner";
 import ChatItem from "../components/ChatItem";
 import { useTwilioConfig } from "../hooks/useTwilioConfig";
 import { nhost } from "../libs/nhost";
+import TwilioProvider, { TwilioContext } from "../context/twilioClient";
 
 function Home() {
   const { config, setConfig } = useTwilioConfig();
@@ -71,11 +72,6 @@ function Home() {
       )}
     </section>
   );
-}
-
-function convertToTimestamp(str: string) {
-  const date = new Date(str);
-  return date.getMilliseconds();
 }
 
 export default withAuth(Home);

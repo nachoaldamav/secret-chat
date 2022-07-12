@@ -23,7 +23,8 @@ export default function getHomeMessages(
           const author = await getName(
             (messages.items[0].author as string) || ""
           );
-          resolve({ unread, message: messages.items[0], author });
+          const timestamp = messages.items[0].dateCreated?.toISOString() || "";
+          resolve({ unread, message: messages.items[0], author, timestamp });
         } catch (e) {
           console.error("Joining room failed: ", e);
         }
@@ -36,9 +37,10 @@ export type HomeMessage = {
   unread: number;
   message: Message;
   author: string;
+  timestamp: string;
 };
 
-async function getName(id: string): Promise<string> {
+export async function getName(id: string): Promise<string> {
   const QUERY = gql`
     query getName($id: uuid = id) {
       user(id: $id) {

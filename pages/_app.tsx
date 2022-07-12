@@ -7,6 +7,7 @@ import { NhostApolloProvider } from "@nhost/react-apollo";
 import { nhost } from "../libs/nhost";
 import { TwilioProvider } from "../context/twilioConfig";
 import { UserScrollProvider } from "../context/userScroll";
+import TwilioClientProvider from "../context/twilioClient";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -20,7 +21,9 @@ function MyApp({ Component, pageProps }: AppProps) {
               attribute="class"
             >
               <AppLayout>
-                <Component {...pageProps} />
+                <TwilioClientProvider>
+                  <Component {...pageProps} />
+                </TwilioClientProvider>
               </AppLayout>
             </ThemeProvider>
           </UserScrollProvider>
