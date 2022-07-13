@@ -35,7 +35,7 @@ export default function RenderMedia({
           if (raw.contentType.startsWith("image")) {
             const { width, height } = await getImageDimensions(res.url);
             setDimensions({ width, height });
-
+            if (!scroll) scrollToBottom();
             setHasBlur(raw?.filename?.includes("-blur") ?? false);
           }
         })
@@ -45,7 +45,7 @@ export default function RenderMedia({
           if (raw.contentType.startsWith("image")) {
             const { width, height } = await getImageDimensions(url as string);
             setDimensions({ width, height });
-
+            if (!scroll) scrollToBottom();
             setHasBlur(raw?.filename?.includes("-blur") ?? false);
           }
           return;
