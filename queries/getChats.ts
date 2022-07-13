@@ -12,6 +12,7 @@ const QUERY_LOCAL = gql`
       icon
       creator_id
       updated_at
+      name
       chats(where: { user_id: { _eq: $_eq } }) {
         user_data {
           custom_avatar
@@ -37,6 +38,7 @@ const QUERY_PROD = gql`
       icon
       creator_id
       updated_at
+      name
       chats {
         user_data {
           custom_avatar
@@ -98,6 +100,7 @@ export type Chat = {
   icon: string | null;
   creator_id: string;
   updated_at: string;
+  name: string;
   chats: [
     {
       user_data: {

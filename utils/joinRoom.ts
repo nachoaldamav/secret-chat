@@ -1,7 +1,6 @@
 import { Message } from "@twilio/conversations";
 import { Participant } from "../types/Room";
 import createOrJoinRoom from "./room";
-import scrollToBottom from "./scrollToBottom";
 
 export default async function joinRoom(
   roomId: string,
@@ -36,7 +35,14 @@ export default async function joinRoom(
     .setAllMessagesRead()
     .then(() => {
       console.log("All messages read");
-      scrollToBottom();
+      setTimeout(() => {
+        const el = document.getElementById("scroll-anchor");
+        if (el) {
+          el.scrollIntoView({
+            behavior: "auto",
+          });
+        }
+      }, 100);
     })
     .catch((err) => {
       console.log(err);

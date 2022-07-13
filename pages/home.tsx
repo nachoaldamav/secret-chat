@@ -24,6 +24,7 @@ function Home() {
         icon
         creator_id
         updated_at
+        name
         chats {
           user_data {
             custom_avatar

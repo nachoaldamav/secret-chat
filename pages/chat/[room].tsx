@@ -36,6 +36,7 @@ const GET_ROOM = gql`
       created_at
       icon
       id
+      name
       chats {
         user_data {
           id
@@ -266,6 +267,8 @@ export default function RoomPage() {
     setAudioChunks([]);
   }
 
+  console.log(data?.room[0]);
+
   return (
     <div className="w-full h-full flex flex-col justify-start items-center">
       {!data && (
@@ -281,10 +284,7 @@ export default function RoomPage() {
         </Link>
         <div className="flex flex-row gap-2 justify-center w-full items-center">
           <Image
-            src={
-              participants.find((p) => p.isCreator)?.avatar ||
-              "https://via.placeholder.com/150"
-            }
+            src={data?.room[0].icon || "https://via.placeholder.com/150"}
             className="h-6 w-6 rounded-full"
             height={30}
             width={30}
@@ -296,7 +296,9 @@ export default function RoomPage() {
               setShowInfo(true);
             }}
           >
-            <h1 className="text-xl font-bold">Sala 1</h1>
+            <h1 className="text-xl font-bold">
+              {data?.room[0].name || "Sala sin nombre"}
+            </h1>
             <h2 className="text-sm font-medium truncate w-80 max-w-max">
               {participants.map((p) => p.name).join(", ")}
             </h2>
@@ -334,6 +336,7 @@ export default function RoomPage() {
           onClick={() => {
             setShowInfo(false);
           }}
+          isCreator={isCreator as boolean}
         />
       )}
       {addParticipant && (

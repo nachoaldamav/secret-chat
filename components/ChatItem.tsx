@@ -73,7 +73,7 @@ export default function ChatItem({ chat }: { chat: Chat }) {
           </div>
           <div className="flex flex-col justify-start items-start w-full">
             <div className="flex flex-row justify-between items-center w-full">
-              <div className="font-bold">{creator?.name}</div>
+              <div className="font-bold">{chat?.name || "Sala sin nombre"}</div>
               <span className="font-light text-xs">
                 {info?.timestamp && timeAgo(info?.timestamp)}
               </span>
