@@ -1,4 +1,3 @@
-import { Message } from "@twilio/conversations";
 import { Participant } from "../types/Room";
 import createOrJoinRoom from "./room";
 
@@ -9,8 +8,6 @@ export default async function joinRoom(
   isCreator: boolean = false,
   setConversation: (conversation: any) => void,
   setMessages: (messages: any) => void,
-  scrollDiv: any,
-  handleMessageAdded: (message: Message) => void,
   setMessagesCount: (count: number) => void
 ) {
   console.log({ isCreator, participants, roomId });
@@ -27,7 +24,6 @@ export default async function joinRoom(
   setMessages(messages.items);
 
   conversation.getMessagesCount().then((count) => {
-    console.log("messages count: ", count);
     setMessagesCount(count);
   });
 

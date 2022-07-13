@@ -13,6 +13,7 @@ import Link from "next/link";
 import getUserId from "../queries/getUserId";
 import { nhost } from "../libs/nhost";
 import { gql } from "@apollo/client";
+import { PlusIcon } from "@heroicons/react/outline";
 
 const NON_PROTECTED_ROUTES = ["/", "/login", "/signup"];
 
@@ -23,9 +24,9 @@ const ROUTES = [
     icon: <HomeIcon className="h-8 w-8" />,
   },
   {
-    path: "/contacts",
-    title: "Contactos",
-    icon: <UserGroupIcon className="h-8 w-8" />,
+    path: "/create",
+    title: "Crear sala",
+    icon: <PlusIcon className="h-8 w-8" />,
   },
   {
     path: "/call",

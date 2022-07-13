@@ -146,8 +146,6 @@ export default function RoomPage() {
         isCreator as boolean,
         setConversation,
         setMessages,
-        scrollDiv,
-        handleMessageAdded,
         setMessagesCount
       );
 
