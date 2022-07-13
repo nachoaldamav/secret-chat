@@ -78,7 +78,8 @@ export default function RoomPage() {
   const [showInfo, setShowInfo] = useState<boolean>(false);
   const [addParticipant, setAddParticipant] = useState<boolean>(false);
   const { scroll, setContainer } = useScroll();
-  let scrollDiv = useRef(null);
+  let scrollDiv = useRef<HTMLInputElement>(null);
+  let scrollAnchor = useRef<HTMLInputElement>(null);
   const { config } = useTwilioConfig();
   const { accessToken } = config;
 
@@ -89,11 +90,21 @@ export default function RoomPage() {
   const handleMessageAdded = (message: Message) => {
     setMessages((messages) => [...messages, message]);
     setMessagesCount((messagesCount) => messagesCount + 1);
-    if (!scroll) {
-      console.log("Scrolling to bottom");
-      scrollToBottom(scrollDiv);
-    } else {
-      console.log("Not scrolling to bottom");
+
+    // Check if "scroll-anchor" is in viewport
+    if (scrollAnchor.current) {
+      const scrollAnchorRect = scrollAnchor.current.getBoundingClientRect();
+      const scrollDivRect = scrollDiv.current?.getBoundingClientRect();
+      if (
+        scrollDivRect &&
+        scrollAnchorRect.bottom < scrollDivRect.bottom &&
+        scrollAnchorRect.top > scrollDivRect.top
+      ) {
+        console.log("User has not scrolled");
+        scrollToBottom();
+      } else {
+        console.log("User has scrolled");
+      }
     }
   };
 
@@ -140,12 +151,28 @@ export default function RoomPage() {
       );
 
     setContainer(document.getElementById("messages") as HTMLDivElement);
-
-    return () => {
-      conversation?.off("messageAdded", handleMessageAdded);
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken, room, userId, isCreator]);
+
+  useEffect(() => {
+    if (conversation) {
+      conversation?.on("messageAdded", (message: Message) =>
+        handleMessageAdded(message)
+      );
+
+      conversation?.on("messageRemoved", (message: Message) =>
+        // Remove message from state
+        setMessages((messages: any) =>
+          messages.filter((m: any) => m.sid !== message.sid)
+        )
+      );
+
+      return () => {
+        conversation?.off("messageAdded", handleMessageAdded);
+        conversation?.off("messageRemoved", () => {});
+      };
+    }
+  }, [conversation, scroll]);
 
   if (error) {
     return (
@@ -371,7 +398,7 @@ export default function RoomPage() {
               />
             ))}
         </InfiniteScroll>
-        <span id="scroll-anchor" />
+        <span id="scroll-anchor" ref={scrollAnchor} />
       </section>
       <form
         id="input"

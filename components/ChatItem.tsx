@@ -80,8 +80,8 @@ export default function ChatItem({ chat }: { chat: Chat }) {
             </div>
             {info ? (
               <div className="text-sm inline-flex gap-1">
-                {info.author}
-                {": "}
+                {info.author || "No hay mensajes"}
+                {info.author && ": "}
                 {info?.message && getText(info?.message)}
               </div>
             ) : (

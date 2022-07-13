@@ -50,5 +50,5 @@ export async function getName(id: string): Promise<string> {
   `;
 
   const res = await nhost.graphql.request(QUERY, { id });
-  return res.data.user.displayName;
+  return res.data?.user?.displayName || "";
 }

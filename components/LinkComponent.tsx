@@ -27,7 +27,6 @@ export default function Links({ url }: { url: string }) {
       .then((res) => res.json())
       .then((data) => {
         setData(data);
-        if (!scroll) scrollToBottom();
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlWithoutQueryString]);

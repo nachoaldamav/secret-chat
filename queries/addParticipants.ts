@@ -8,8 +8,8 @@ export default async function addParticipant(
   const { data, error } = await nhost.graphql.request(
     gql`
       mutation addParticipant(
-        $room_id: uuid = room
-        $user_id: uuid = participant
+        $room_id: uuid = room_id
+        $user_id: uuid = user_id
       ) {
         insert_chat(objects: { user_id: $user_id, room_id: $room_id }) {
           affected_rows
@@ -17,8 +17,8 @@ export default async function addParticipant(
       }
     `,
     {
-      room,
-      participant,
+      room_id: room,
+      user_id: participant,
     }
   );
 
@@ -29,8 +29,3 @@ export default async function addParticipant(
 
   return { data, error: null };
 }
-
-type Props = {
-  room: string;
-  participant: string;
-};
