@@ -9,14 +9,18 @@ import { useAuthSubscription } from "@nhost/react-apollo";
 import getUserId from "../queries/getUserId";
 import Link from "next/link";
 import useTwilio from "../hooks/twilio";
-import { initServiceWorker, suscribeToNotifications } from "../libs/firebase";
+import {
+  initServiceWorker,
+  showNotification,
+  suscribeToNotifications,
+} from "../libs/firebase";
 import { Client } from "@twilio/conversations";
 
 async function refreshToken(): Promise<{
   token: string;
   ttl: number;
 }> {
-  return fetch("/api/refresh-token", {
+  return fetch("/api/get-token", {
     headers: {
       Authorization: `Bearer ${nhost.auth.getAccessToken() as string}`,
     },
@@ -60,7 +64,24 @@ function Home() {
       client.on("tokenExpired", () => {
         handleTokenRefresh();
       });
+
+      client.on("pushNotification", (event) => {
+        // @ts-ignore
+        if (event.type != "twilio.conversations.new_message") {
+          return;
+        }
+
+        if (Notification.permission === "granted") {
+          showNotification(event);
+        } else {
+          console.log("Push notification is skipped", Notification.permission);
+        }
+      });
     }
+
+    return () => {
+      client?.removeAllListeners();
+    };
   }, [client, handleTokenRefresh]);
 
   const { data, loading, error } = useAuthSubscription(QUERY_PROD, {

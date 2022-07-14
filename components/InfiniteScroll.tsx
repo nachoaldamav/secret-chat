@@ -14,7 +14,7 @@ export default function InfiniteScroll({
 
   async function addMoreMessages() {
     if (hasMore && !isLoading) {
-      getLastElement();
+      await getLastElement();
       setIsLoading(true);
       await loadMore();
       goToLastElement();
@@ -22,13 +22,15 @@ export default function InfiniteScroll({
     }
   }
 
-  function getLastElement() {
+  async function getLastElement() {
     // Get first div of "messages" id
     const messages = document.getElementById("messages");
+
     if (messages) {
       const secondElement = messages.children[1];
       if (secondElement) {
         setLastElement(secondElement as HTMLDivElement);
+        return;
       }
     }
   }
@@ -52,7 +54,7 @@ export default function InfiniteScroll({
         >
           {hasMore && !isLoading && (
             <button
-              className="bg-blue-600 px-4 py-2 text-lg rounded-lg hover:bg-blue-700 duration-200 transition ease-in-out"
+              className="bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700 duration-200 transition ease-in-out"
               onClick={addMoreMessages}
             >
               Cargar más mensajes
@@ -60,7 +62,6 @@ export default function InfiniteScroll({
           )}
           {!isLoading && !hasMore && "Has llegado al final"}
           {isLoading && "Cargando mensajes..."}
-          {!hasMore && "No hay más mensajes"}
         </span>
       )}
       {children}
