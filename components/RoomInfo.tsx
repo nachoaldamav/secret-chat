@@ -140,9 +140,10 @@ export default function RoomInfo({
             alt={roomData.name}
           />
         ) : (
-          <div className="flex flex-col items-center justify-center h-32 w-full">
+          <div className="flex flex-col items-center justify-center h-32 w-full mb-2">
             <input
-              className="mx-auto w-full"
+              className="hidden"
+              id="icon-input"
               type="file"
               accept="image/*"
               onChange={(e) => {
@@ -152,6 +153,17 @@ export default function RoomInfo({
                 }
               }}
             />
+            <div
+              className="h-full w-32 rounded-full border-dotted border-2 border-gray-300 flex flex-col items-center justify-center cursor-pointer"
+              onClick={() => {
+                const input = document.getElementById(
+                  "icon-input"
+                ) as HTMLInputElement;
+                input.click();
+              }}
+            >
+              <span className="text-center">Seleccionar imagen</span>
+            </div>
           </div>
         )}
 

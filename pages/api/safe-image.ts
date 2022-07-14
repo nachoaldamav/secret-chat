@@ -26,7 +26,9 @@ export default async function SafeImage(
   try {
     const [result] = await client.safeSearchDetection({
       image: {
-        content: image.replace(/^data:image\/[a-z]+;base64,/, ""),
+        source: {
+          imageUri: image,
+        },
       },
     });
 

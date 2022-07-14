@@ -1,17 +1,20 @@
+import { nhost } from "../libs/nhost";
+
 export default async function checkSafeImage(image: File) {
-  // "api/safe-image"
-  const base64 = Buffer.from(await image.arrayBuffer()).toString("base64");
+  const url = await uploadImageToCDN(image);
+
   return fetch("/api/safe-image", {
     method: "POST",
     body: JSON.stringify({
-      image: base64,
+      image: url,
     }),
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
     },
   })
-    .then((res) => {
+    .then(async (res) => {
+      await nhost.storage.delete({ fileId: url.split("/").pop() as string });
       return res.json();
     })
     .then((res) => {
@@ -25,6 +28,21 @@ export default async function checkSafeImage(image: File) {
     .catch((err) => {
       throw err;
     });
+}
+
+async function uploadImageToCDN(image: File) {
+  const fileId = await nhost.storage
+    .upload({
+      file: image,
+    })
+    .then((res) => {
+      return res.fileMetadata?.id;
+    })
+    .catch((err) => {
+      throw err;
+    });
+
+  return nhost.storage.getPublicUrl({ fileId: fileId as string });
 }
 
 function isNSFW(data: string) {

@@ -441,9 +441,17 @@ export default function RoomPage() {
                 setMessage(e.target.value);
                 conversation?.typing();
               }}
-              onTouchEnd={() => {
-                if (!scroll) {
-                  scrollToBottom();
+            />
+            <input
+              type="file"
+              className="hidden"
+              id="file-selector"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  // @ts-ignore-next-line
+                  setMedia([file]);
+                  e.target.value = "";
                 }
               }}
             />
@@ -538,19 +546,6 @@ export default function RoomPage() {
           </>
         )}
       </form>
-      <input
-        type="file"
-        className="hidden"
-        id="file-selector"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) {
-            // @ts-ignore-next-line
-            setMedia([file]);
-            e.target.value = "";
-          }
-        }}
-      />
     </div>
   );
 }
