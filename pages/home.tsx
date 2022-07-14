@@ -1,64 +1,67 @@
 import withAuth from "../utils/withAuth";
-import { useEffect } from "react";
-import { Chat } from "../queries/getChats";
+import { useCallback, useEffect } from "react";
+import { Chat, QUERY_PROD } from "../queries/getChats";
 import Spinner from "../components/Spinner";
 import ChatItem from "../components/ChatItem";
 import { useTwilioConfig } from "../hooks/useTwilioConfig";
 import { nhost } from "../libs/nhost";
 import { useAuthSubscription } from "@nhost/react-apollo";
-import { gql } from "@apollo/client";
 import getUserId from "../queries/getUserId";
 import Link from "next/link";
+import useTwilio from "../hooks/twilio";
+import { initServiceWorker, suscribeToNotifications } from "../libs/firebase";
+import { Client } from "@twilio/conversations";
+
+async function refreshToken(): Promise<{
+  token: string;
+  ttl: number;
+}> {
+  return fetch("/api/refresh-token", {
+    headers: {
+      Authorization: `Bearer ${nhost.auth.getAccessToken() as string}`,
+    },
+  })
+    .then((res) => res.json())
+    .catch((err) => console.error(err));
+}
 
 function Home() {
   const id = getUserId();
   const { config, setConfig } = useTwilioConfig();
+  const { client } = useTwilio();
 
-  const QUERY_PROD = gql`
-    subscription getRooms($_eq: uuid = _eq) {
-      room(
-        order_by: { updated_at: desc }
-        where: { chats: { user_id: { _eq: $_eq } } }
-        distinct_on: updated_at
-      ) {
-        id
-        icon
-        creator_id
-        updated_at
-        name
-        chats {
-          user_data {
-            custom_avatar
-            id
-            user {
-              avatarUrl
-              displayName
-            }
-          }
-        }
-      }
+  // Wrap in useCallback
+  const handleTokenRefresh = useCallback(async () => {
+    try {
+      const { token, ttl } = await refreshToken();
+      setConfig({
+        accessToken: token,
+        expirationDate: new Date().getTime() + ttl * 1000,
+      });
+    } catch (err) {
+      console.error(err);
     }
-  `;
+  }, [setConfig]);
 
   useEffect(() => {
     if (!config.accessToken) {
-      fetch("/api/get-token", {
-        headers: {
-          Authorization: `Bearer ${nhost.auth.getAccessToken()}`,
-        },
-      })
-        .then((res) => res.json())
-        .then((res) => {
-          setConfig({
-            accessToken: res.token,
-            expirationDate: new Date().getTime() + res.ttl * 1000,
-          });
-        })
-        .catch((err) => {
-          console.error("Something failed while getting token: ", err);
-        });
+      handleTokenRefresh();
     }
-  }, [config, setConfig]);
+  }, [config, setConfig, handleTokenRefresh]);
+
+  useEffect(() => {
+    const fcmInit = async () => {
+      await initServiceWorker();
+      await suscribeToNotifications(client as Client);
+    };
+
+    if (client) {
+      fcmInit();
+      client.on("tokenExpired", () => {
+        handleTokenRefresh();
+      });
+    }
+  }, [client, handleTokenRefresh]);
 
   const { data, loading, error } = useAuthSubscription(QUERY_PROD, {
     variables: {

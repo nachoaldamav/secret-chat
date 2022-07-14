@@ -27,7 +27,7 @@ const QUERY_LOCAL = gql`
   }
 `;
 
-const QUERY_PROD = gql`
+export const QUERY_PROD = gql`
   subscription getRooms($_eq: uuid = _eq) {
     room(
       order_by: { updated_at: desc }
