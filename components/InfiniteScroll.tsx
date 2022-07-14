@@ -1,5 +1,5 @@
 import { Message } from "@twilio/conversations";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function InfiniteScroll({
   children,
@@ -12,39 +12,36 @@ export default function InfiniteScroll({
   const [lastElement, setLastElement] = useState<HTMLDivElement | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    async function handleScroll(container: HTMLElement) {
-      if (container.scrollTop === 0 && hasMore && !isLoading) {
-        setIsLoading(true);
-        await loadMore();
-        setIsLoading(false);
-        // Get element by "scroll-id"
-        if (lastElement) {
-          lastElement.scrollIntoView();
-        }
+  async function addMoreMessages() {
+    if (hasMore && !isLoading) {
+      getLastElement();
+      setIsLoading(true);
+      await loadMore();
+      goToLastElement();
+      setIsLoading(false);
+    }
+  }
+
+  function getLastElement() {
+    // Get first div of "messages" id
+    const messages = document.getElementById("messages");
+    if (messages) {
+      const secondElement = messages.children[1];
+      if (secondElement) {
+        setLastElement(secondElement as HTMLDivElement);
       }
     }
+  }
 
-    const container = document.getElementById("messages");
-    if (container) {
-      container.addEventListener("scroll", () => handleScroll(container));
+  function goToLastElement() {
+    if (lastElement) {
+      setTimeout(() => {
+        lastElement.scrollIntoView({ behavior: "auto" });
+      }, 100);
     }
+  }
 
-    return () => {
-      container?.removeEventListener("scroll", () => handleScroll(container));
-    };
-  }, [hasMore, isLoading, loadMore, itemsLength, total, lastElement]);
-
-  useEffect(() => {
-    const scrollId = document.querySelector(
-      `[data-scroll-id="${lastElementIndex?.index || 20}"]`
-    );
-    if (scrollId) {
-      setLastElement(scrollId as HTMLDivElement);
-    } else {
-      console.log("scrollId not found", lastElementIndex);
-    }
-  }, [lastElementIndex]);
+  console.log("lastElement", lastElement);
 
   return (
     <>
@@ -53,10 +50,17 @@ export default function InfiniteScroll({
           id="end"
           className="my-10 w-full flex flex-col justify-center items-center"
         >
-          {isLoading ? "Cargando mensajes antiguos..." : ""}
-          {!isLoading && !hasMore && itemsLength > 0
-            ? "Has llegado al final"
-            : "No hay mensajes, ¡empieza a escribir!"}
+          {hasMore && !isLoading && (
+            <button
+              className="bg-blue-600 px-4 py-2 text-lg rounded-lg hover:bg-blue-700 duration-200 transition ease-in-out"
+              onClick={addMoreMessages}
+            >
+              Cargar más mensajes
+            </button>
+          )}
+          {!isLoading && !hasMore && "Has llegado al final"}
+          {isLoading && "Cargando mensajes..."}
+          {!hasMore && "No hay más mensajes"}
         </span>
       )}
       {children}
