@@ -2,6 +2,7 @@ import { gql } from "@apollo/client";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import Spinner from "../components/Spinner";
+import useTwilio from "../hooks/twilio";
 import { nhost } from "../libs/nhost";
 import getUserId from "../queries/getUserId";
 import withAuth from "../utils/withAuth";
@@ -26,9 +27,12 @@ function CreatePage() {
   const router = useRouter();
   const userId = getUserId();
   const accessToken = nhost.auth.getAccessToken();
+  const isAuthenticated = nhost.auth.isAuthenticated();
+  const { client } = useTwilio();
 
   useEffect(() => {
     async function addData() {
+      nhost.graphql.setAccessToken(accessToken);
       const { data, error } = await nhost.graphql.request(GENERATE_ROOM, {
         creator_id: userId,
       });
@@ -55,13 +59,17 @@ function CreatePage() {
 
       const chatId = chatData.insert_chat_one.room_id;
 
+      await client?.createConversation({
+        uniqueName: chatId,
+      });
+
       router.push(`/chat/${chatId}`);
     }
 
-    if (accessToken && userId) {
+    if (accessToken && userId && isAuthenticated) {
       addData();
     }
-  }, [router, userId, accessToken]);
+  }, [router, userId, accessToken, isAuthenticated, client]);
 
   return (
     <section className="w-full h-full flex flex-col justify-center items-center gap-2">

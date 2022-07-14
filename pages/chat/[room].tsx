@@ -114,7 +114,7 @@ export default function RoomPage() {
       data?.room[0].chats?.forEach((participant) => {
         const user = participant.user_data;
         if (user) {
-          const avatar = user?.custom_avatar || user.user.avatarUrl;
+          const avatar = user?.custom_avatar;
           const lastSeen = user.last_seen;
           const name = user.user.displayName;
           const id = user.id;
@@ -282,10 +282,14 @@ export default function RoomPage() {
         </Link>
         <div className="flex flex-row gap-2 justify-center w-full items-center">
           <Image
-            src={data?.room[0].icon || "https://via.placeholder.com/150"}
+            src={
+              data?.room[0].icon ||
+              "https://source.boringavatars.com/beam/120/secret%20chat?colors=796C86,2a9d8f,e9c46a,f4a261,e76f51"
+            }
             className="h-6 w-6 rounded-full"
             height={30}
             width={30}
+            unoptimized={!data?.room[0].icon ? true : false}
             alt="avatar"
           />
           <div

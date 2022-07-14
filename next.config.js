@@ -7,6 +7,7 @@ module.exports = {
       "via.placeholder.com",
       "s.gravatar.com",
       "npvetwtkmbcbxsrqpprc.storage.eu-central-1.nhost.run",
+      "source.boringavatars.com",
     ],
   },
 };

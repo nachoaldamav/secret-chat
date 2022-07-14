@@ -28,14 +28,24 @@ export default function ChatItem({ chat }: { chat: Chat }) {
 
   useEffect(() => {
     async function getMessage() {
-      const conversation = await client?.getConversationByUniqueName(chat.id);
-      const lastMessage = await conversation?.getMessages(1);
-      const message = lastMessage?.items[0] as Message;
-      const unread = (await conversation?.getUnreadMessagesCount()) ?? 0;
-      const author = await getName(message?.author as string);
-      const timestamp = message?.dateUpdated?.toISOString() ?? "";
+      try {
+        const conversation = await client?.getConversationByUniqueName(chat.id);
+        const lastMessage = await conversation?.getMessages(1);
+        const message = lastMessage?.items[0] as Message;
+        const unread = (await conversation?.getUnreadMessagesCount()) ?? 0;
+        const author = await getName(message?.author as string);
+        const timestamp = message?.dateUpdated?.toISOString() ?? "";
 
-      setInfo({ author, message, timestamp, unread });
+        setInfo({ author, message, timestamp, unread });
+      } catch (e) {
+        console.error("Fetch last message failed", e);
+        setInfo({
+          author: "",
+          message: null,
+          timestamp: "",
+          unread: 0,
+        });
+      }
     }
 
     if (config.accessToken) {

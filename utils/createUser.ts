@@ -3,14 +3,22 @@ import { nhost } from "../libs/nhost";
 import getUserId from "../queries/getUserId";
 
 const QUERY = gql`
-  mutation addUser($id: uuid = id) {
-    insert_user_data_one(object: { id: $id }) {
-      id
+  mutation MyMutation($id: uuid = id) {
+    insert_user_data(objects: { id: $id }) {
+      affected_rows
     }
   }
 `;
 
-export default async function createUser() {
+export default async function createUser(accessToken: string) {
   const userId = getUserId();
-  return await nhost.graphql.request(QUERY, { id: userId });
+  nhost.graphql.setAccessToken(accessToken);
+  try {
+    const response = await nhost.graphql.request(QUERY, { id: userId });
+    console.log(response, accessToken);
+    return response;
+  } catch (err) {
+    console.log(err);
+    return err;
+  }
 }

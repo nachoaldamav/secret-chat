@@ -1,10 +1,13 @@
+import { LogoutIcon } from "@heroicons/react/outline";
 import { gql } from "graphql-request";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { nhost } from "../libs/nhost";
 import getUserData, { UserData } from "../queries/getUserData";
 import withAuth from "../utils/withAuth";
 
 function SettingsPage() {
+  const router = useRouter();
   const isAuthenticated = nhost.auth.isAuthenticated();
   const [user, setUser] = useState<UserData | null>(null);
   const [values, setValues] = useState<FormValues>({
@@ -43,7 +46,19 @@ function SettingsPage() {
   };
 
   return (
-    <div className="my-4 text-center">
+    <div className="my-4 text-center relative">
+      <span className="absolute top-0 -right-6 z-10">
+        <button
+          className="w-fit rounded-lg px-2 py-2 bg-red-600 text-white hover:bg-red-800 transition duration-300 ease-in-out"
+          onClick={async () => {
+            await nhost.auth.signOut();
+            localStorage.removeItem("twilio_accessToken");
+            router.push("/");
+          }}
+        >
+          <LogoutIcon className="w-6 h-6" />
+        </button>
+      </span>
       <h1 className="text-xl font-bold">Ajustes</h1>
       <p className="text-sm">Aquí puedes los ajustes de tu cuenta.</p>
       <form

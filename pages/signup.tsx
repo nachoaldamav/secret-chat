@@ -28,7 +28,7 @@ export default function LoginPage() {
       setLoading(false);
       return;
     } else {
-      const res: any = await nhost.auth
+      nhost.auth
         .signUp({
           email: data.email,
           password: data.password,
@@ -36,23 +36,22 @@ export default function LoginPage() {
             displayName: data.username,
           },
         })
+        .then(async (res) => {
+          nhost.auth
+            .signIn({
+              email: data.email,
+              password: data.password,
+            })
+            .then(async (res) => {
+              await createUser(res.session?.accessToken as string);
+              router.push("/home");
+            });
+        })
         .catch(async (error: ErrorNhost) => {
           console.error(error);
           setLoading(false);
           setError(error);
         });
-
-      if (res.error !== null) {
-        await nhost.auth.signIn({
-          email: data.email,
-          password: data.password,
-        });
-        await createUser();
-        router.push("/home");
-      } else {
-        setLoading(false);
-        setError(res.error);
-      }
     }
   }
 
@@ -143,7 +142,7 @@ export default function LoginPage() {
               Cargando...
             </>
           ) : (
-            "Iniciar Sesión"
+            "Crear cuenta"
           )}
         </button>
         <div className="inline-flex self-center items-center justify-center mt-4">

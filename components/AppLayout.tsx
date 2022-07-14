@@ -43,7 +43,6 @@ const ROUTES = [
 export default function AppLayout({ children }: any) {
   const router = useRouter();
   const { pathname } = router;
-  const { theme, setTheme } = useTheme();
 
   const hasFooter =
     !NON_PROTECTED_ROUTES.includes(pathname) && pathname !== "/chat/[room]";
@@ -51,20 +50,6 @@ export default function AppLayout({ children }: any) {
   return (
     <div className="w-full min-h-screen flex flex-col items-start justify-center h-fit bg-gray-200 text-black dark:bg-secondary dark:text-white font-display sm:p-4 max-h-screen">
       <div className="flex flex-col w-full max-w-md mx-auto bg-primaryLight dark:bg-primary sm:max-h-[95vh] h-screen sm:rounded-xl relative">
-        {NON_PROTECTED_ROUTES.includes(pathname) && (
-          <span className="absolute top-0 right-0 mr-4 mb-4 z-[999]">
-            <button
-              className="bg-primaryLight dark:bg-primary text-black dark:text-white rounded-lg p-2 border-gray-600 border-2 my-2 "
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            >
-              {theme === "light" ? (
-                <MoonIcon className="h-6 w-6" />
-              ) : (
-                <SunIcon className="h-6 w-6" />
-              )}
-            </button>
-          </span>
-        )}
         <div className="flex flex-col w-full h-[100%] justify-start items-center">
           {children}
         </div>

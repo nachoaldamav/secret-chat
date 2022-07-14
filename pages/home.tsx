@@ -8,6 +8,7 @@ import { nhost } from "../libs/nhost";
 import { useAuthSubscription } from "@nhost/react-apollo";
 import { gql } from "@apollo/client";
 import getUserId from "../queries/getUserId";
+import Link from "next/link";
 
 function Home() {
   const id = getUserId();
@@ -84,13 +85,22 @@ function Home() {
         </div>
       )}
 
-      {chats && (
+      {chats && chats.room.length > 0 && (
         <ul className="w-full h-full flex flex-col justify-start items-start gap-2 overflow-x-auto pb-16">
-          {chats.room.length > 0 &&
-            chats.room.map((chat: Chat) => (
-              <ChatItem chat={chat} key={chat.id} />
-            ))}
+          {chats.room.map((chat: Chat) => (
+            <ChatItem chat={chat} key={chat.id} />
+          ))}
         </ul>
+      )}
+      {chats && chats.room.length === 0 && (
+        <div className="flex flex-col text-2xl font-bold self-center items-center gap-4 mt-10">
+          <span>No tienes chats.</span>
+          <Link href={"/create"}>
+            <a className="px-6 w-fit py-2 font-bold bg-blue-600 text-xl rounded-xl">
+              Crear una sala
+            </a>
+          </Link>
+        </div>
       )}
     </section>
   );

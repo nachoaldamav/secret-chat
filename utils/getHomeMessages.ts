@@ -35,7 +35,7 @@ export default function getHomeMessages(
 
 export type HomeMessage = {
   unread: number;
-  message: Message;
+  message: Message | null;
   author: string;
   timestamp: string;
 };

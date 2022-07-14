@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { CheckCircleIcon, PencilIcon } from "@heroicons/react/outline";
 import {
   Conversation,
@@ -188,7 +189,10 @@ export default function RoomInfo({
                 )}
                 <img
                   className="h-8 w-8 rounded-full"
-                  src={participant.avatar}
+                  src={
+                    participant.avatar ||
+                    `https://source.boringavatars.com/beam/120/${participant.name}?colors=796C86,2a9d8f,e9c46a,f4a261,e76f51`
+                  }
                   alt={participant.name}
                 />
                 <span className="ml-2">{participant.name}</span>
