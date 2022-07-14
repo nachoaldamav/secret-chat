@@ -3,7 +3,6 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import ErrorToast from "../components/ErrorToast";
-import { nhost } from "../libs/nhost";
 import getUserId from "../queries/getUserId";
 
 export default function LoginPage() {
@@ -32,7 +31,13 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col w-full h-full items-center justify-start relative">
       <h1 className="text-2xl text-center font-bold">Iniciar Sesión</h1>
-      <section className="w-3/5 h-full flex flex-col items-start justify-center">
+      <form
+        className="w-3/5 h-full flex flex-col items-start justify-center"
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleLogin();
+        }}
+      >
         <label
           htmlFor="email"
           className="font-medium text-black dark:text-gray-300"
@@ -63,7 +68,7 @@ export default function LoginPage() {
         />
         <button
           disabled={loading}
-          type="button"
+          type="submit"
           className="text-white self-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 inline-flex items-center"
           onClick={handleLogin}
         >
@@ -98,7 +103,7 @@ export default function LoginPage() {
             </a>
           </Link>
         </div>
-      </section>
+      </form>
       {isError && error && (
         <span className="absolute bottom-0 left-0 mr-4 mb-4">
           <ErrorToast error={ERROR_CODES[error.error]} />
