@@ -10,8 +10,6 @@ export default async function joinRoom(
   setMessages: (messages: any) => void,
   setMessagesCount: (count: number) => void
 ) {
-  console.log({ isCreator, participants, roomId });
-
   const conversation = await createOrJoinRoom(
     roomId,
     accessToken as string,
@@ -30,7 +28,6 @@ export default async function joinRoom(
   conversation
     .setAllMessagesRead()
     .then(() => {
-      console.log("All messages read");
       setTimeout(() => {
         const el = document.getElementById("scroll-anchor");
         if (el) {
@@ -38,11 +35,9 @@ export default async function joinRoom(
             behavior: "auto",
           });
         }
-      }, 100);
+      }, 0);
     })
     .catch((err) => {
       console.log(err);
     });
-
-  console.log("Added old messages, scrolling to bottom...");
 }

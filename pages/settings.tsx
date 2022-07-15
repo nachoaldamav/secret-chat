@@ -41,7 +41,7 @@ function SettingsPage() {
       .catch((err) => console.error(err));
 
     if (res) {
-      console.log(res);
+      router.reload();
     }
   };
 

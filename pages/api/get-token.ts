@@ -42,6 +42,7 @@ export default async function GetToken(
 
   const conversationGrant = new ChatGrant({
     serviceSid: process.env.NEXT_PUBLIC_SERVICE_SID,
+    pushCredentialSid: "CR6fc70bea5d4e170ed7a69621a9056833",
   });
 
   accessToken.addGrant(conversationGrant);

@@ -101,10 +101,7 @@ export default function RoomPage() {
         scrollAnchorRect.bottom < scrollDivRect.bottom &&
         scrollAnchorRect.top > scrollDivRect.top
       ) {
-        console.log("User has not scrolled");
         scrollToBottom();
-      } else {
-        console.log("User has scrolled");
       }
     }
   };
@@ -226,7 +223,6 @@ export default function RoomPage() {
       recorder.start(1000);
 
       recorder.ondataavailable = (e) => {
-        console.log("Chunk added!");
         setAudioChunks((prevChunks) => [...prevChunks, e.data]);
       };
     });
@@ -264,8 +260,6 @@ export default function RoomPage() {
   function cleanAudio() {
     setAudioChunks([]);
   }
-
-  console.log(data?.room[0]);
 
   return (
     <div className="w-full h-full flex flex-col justify-start items-center">

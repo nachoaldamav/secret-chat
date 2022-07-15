@@ -33,7 +33,6 @@ export default function AddNewParticipant({
       nhost.graphql
         .request(QUERY_PARTICIPANTS, { _like: name })
         .then(({ data }) => {
-          console.log(data);
           setOptions(data.users);
         })
         .catch(console.error);

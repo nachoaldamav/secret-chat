@@ -15,7 +15,6 @@ export default async function createUser(accessToken: string) {
   nhost.graphql.setAccessToken(accessToken);
   try {
     const response = await nhost.graphql.request(QUERY, { id: userId });
-    console.log(response, accessToken);
     return response;
   } catch (err) {
     console.log(err);

@@ -34,13 +34,11 @@ export default async function createOrJoinRoom(
             }
             resolve(conversation);
           } catch (err) {
-            console.error("Failed to create room: ", err);
             throw err;
           }
         } catch (e: any) {
           console.error(e.message);
           if (e.message === "Conflict") {
-            console.log("Conflict detected, joining room");
             await client
               .getConversationByUniqueName(room)
               .then((conversation) => {

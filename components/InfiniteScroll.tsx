@@ -43,8 +43,6 @@ export default function InfiniteScroll({
     }
   }
 
-  console.log("lastElement", lastElement);
-
   return (
     <>
       {itemsLength !== null && (
