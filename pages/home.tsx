@@ -111,7 +111,7 @@ function Home() {
       )}
 
       {chats && chats.room.length > 0 && (
-        <ul className="w-full h-full flex flex-col justify-start items-start gap-2 overflow-x-auto pb-16">
+        <ul className="w-full h-[100%] flex flex-col justify-start items-start gap-2 overflow-x-auto pb-16">
           {chats.room.map((chat: Chat) => (
             <ChatItem chat={chat} key={chat.id} />
           ))}
