@@ -98,7 +98,7 @@ export default function RenderMedia({
     return <video src={url} className="w-full h-fit rounded-t-xl" controls />;
   } else if (filetype.startsWith("audio")) {
     return <AudioPlayer url={url} />;
-  } else if (filetype.startsWith("application")) {
+  } else {
     return (
       <a
         href={url}
@@ -112,6 +112,4 @@ export default function RenderMedia({
       </a>
     );
   }
-
-  return null;
 }
