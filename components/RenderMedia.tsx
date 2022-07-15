@@ -115,11 +115,3 @@ export default function RenderMedia({
 
   return null;
 }
-
-function scroll(container: HTMLElement) {
-  container &&
-    container.scrollTo({
-      top: container.scrollHeight + 100,
-      behavior: "smooth",
-    });
-}

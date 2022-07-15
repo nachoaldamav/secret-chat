@@ -29,11 +29,6 @@ const ROUTES = [
     icon: <PlusIcon className="h-8 w-8" />,
   },
   {
-    path: "/call",
-    title: "Llamar",
-    icon: <PhoneIcon className="h-8 w-8" />,
-  },
-  {
     path: "/settings",
     title: "Ajustes",
     icon: <CogIcon className="h-8 w-8" />,
@@ -73,28 +68,4 @@ export default function AppLayout({ children }: any) {
       </div>
     </div>
   );
-}
-
-async function setConnection() {
-  const userId = getUserId();
-  if (userId) {
-    // UTC timezone
-    const timestamp = new Date().toISOString().split(".")[0];
-    await nhost.graphql.request(
-      gql`
-        mutation MyMutation(
-          $userId: uuid = userId
-          $last_seen: timestamptz = timestamp
-        ) {
-          update_user_data(
-            where: { id: { _eq: $userId } }
-            _set: { last_seen: $last_seen }
-          ) {
-            affected_rows
-          }
-        }
-      `,
-      { userId, last_seen: timestamp }
-    );
-  }
 }
