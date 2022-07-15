@@ -20,6 +20,7 @@ export default function AudioPlayer({ url }) {
   const waveformRef = useRef(null);
   const wavesurfer = useRef(null);
   const [playing, setPlaying] = useState(false);
+  const [totalTime, setTotalTime] = useState(0);
 
   useEffect(() => {
     create();
@@ -38,6 +39,9 @@ export default function AudioPlayer({ url }) {
     wavesurfer.current = WaveSurfer.create(options);
 
     wavesurfer.current.load(url);
+    wavesurfer.current.on("ready", () => {
+      setTotalTime(wavesurfer.current.getDuration());
+    });
   };
 
   const handlePlayPause = () => {
@@ -56,6 +60,15 @@ export default function AudioPlayer({ url }) {
       </button>
       <div className="w-40 h-20" id="waveform" ref={waveformRef} />
       <audio id="track" src={url} />
+      <span className="text-xs font-bold self-center pr-2">
+        {parseTime(totalTime)}
+      </span>
     </div>
   );
+}
+
+function parseTime(seconds) {
+  const minutes = Math.floor(seconds / 60);
+  const secondsLeft = Math.round(seconds - minutes * 60);
+  return `${minutes}:${secondsLeft < 10 ? "0" : ""}${secondsLeft}`;
 }

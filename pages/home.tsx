@@ -66,6 +66,7 @@ function Home() {
       });
 
       client.on("pushNotification", (event) => {
+        console.log("Push notification: ", event);
         // @ts-ignore
         if (event.type != "twilio.conversations.new_message") {
           return;

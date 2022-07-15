@@ -12,12 +12,14 @@ type Props = {
   message: Message;
   participants: Participant[];
   conversation: Conversation;
+  prevAuthor: string | null;
 };
 
 export default function MessageComponent({
   message,
   participants,
   conversation,
+  prevAuthor,
 }: Props) {
   const [targetElement, setTargetElement] = useState<HTMLDivElement | null>(
     null
@@ -87,7 +89,6 @@ export default function MessageComponent({
   });
 
   window.onkeydown = (e) => {
-    // If the user presses the delete key and the message is hovered, remove it
     if (e.key === "Delete" && e.ctrlKey && isHovered && isCreator) {
       e.preventDefault();
       removeMessage();
@@ -114,7 +115,7 @@ export default function MessageComponent({
       >
         <div
           {...hoverProps}
-          className="flex flex-col w-fit bg-blue-700 relative"
+          className="flex flex-col w-fit relative"
           style={{
             borderRadius:
               message.author === userId
@@ -123,11 +124,12 @@ export default function MessageComponent({
             padding: message.type === "text" ? "0.75rem 1rem" : "0.2rem",
             maxWidth: "75%",
             minWidth: "15%",
+            backgroundColor: message.author === userId ? "#1d4ed8" : "#374151",
           }}
         >
           {message.type === "text" && (
             <>
-              {message.author !== userId && (
+              {message.author !== userId && message.author !== prevAuthor && (
                 <p className="text-sm font-semibold text-white">
                   {participants.find((p) => p.id === message.author)?.name}
                 </p>
