@@ -73,6 +73,9 @@ function SettingsPage() {
           className="w-full p-2 border-2 border-gray-600 bg-transparent rounded-xl"
           type="text"
           value={user?.user?.displayName}
+          onChange={(e) =>
+            setValues({ ...values, displayName: e.target.value })
+          }
         />
         <label className="text-sm font-bold mt-4 mb-2">
           Avatar personalizado
