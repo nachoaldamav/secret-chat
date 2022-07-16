@@ -41,8 +41,14 @@ export const suscribeToNotifications = async (convoClient: Client) => {
     return;
   }
 
-  console.log("[Notifications]: Token: ", token);
-  convoClient.setPushRegistrationId("fcm", token);
+  await convoClient
+    .setPushRegistrationId("fcm", token)
+    .then(() => {
+      console.log("[Notifications]: Successfully set push registration id");
+    })
+    .catch((err) => {
+      console.log("[Notifications]: Error: ", err);
+    });
 
   onMessage(messaging, (payload) => {
     console.log("[Notifications]: Message received: ", payload);
@@ -52,13 +58,19 @@ export const suscribeToNotifications = async (convoClient: Client) => {
   });
 };
 
-export const showNotification = (pushNotification: PushNotification) => {
+export const showNotification = async (
+  pushNotification: PushNotification,
+  customData: any
+) => {
   // eslint-disable-next-line
   // @ts-ignore
   const title = pushNotification.data.conversationTitle || "Secret Chat";
 
+  console.log("[Notifications]: Showing notification: ", pushNotification.data);
+  console.log("[Notifications]: Custom data: ", customData);
+
   const notificationOptions = {
-    body: pushNotification.body as string,
+    body: `[${customData.conversation}] ${customData.user}: ${customData.message}`,
     icon: "favicon.ico",
   };
 

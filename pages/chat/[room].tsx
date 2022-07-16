@@ -418,7 +418,7 @@ export default function RoomPage() {
         }}
       >
         <Typing participants={participants} />
-        <div className="w-full h-12 py-1 border border-gray-600 rounded-xl inline-flex justify-between px-2 items-center">
+        <div className="w-full h-12 py-1 border gap-1 border-gray-600 rounded-xl inline-flex justify-between px-2 items-center">
           <input
             autoComplete="false"
             name="hidden"
