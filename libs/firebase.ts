@@ -77,7 +77,7 @@ export const showNotification = async (
   const notification = new Notification(title, notificationOptions);
   notification.onclick = (e) => {
     e.preventDefault();
-    window.focus();
+    window.open(`/chat/${customData.roomId}`);
     notification.close();
   };
 };

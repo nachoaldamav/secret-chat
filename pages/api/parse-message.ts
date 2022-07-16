@@ -45,6 +45,7 @@ export default async function handler(
       user: data.user.displayName,
       conversation: data.room[0].name || "Sala sin nombre",
       message: message.trim() || "",
+      roomId: conversation,
     });
   }
 }
