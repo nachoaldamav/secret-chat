@@ -53,7 +53,7 @@ export default async function GenerateThumbnail(
 
   res.status(200).json({
     title,
-    image,
+    image: validateImage(image, url as string),
     description,
   });
 }
@@ -66,13 +66,23 @@ async function getMetatags(url: string) {
       const data = await response.json();
       return {
         title: data.title,
-        image: data.image,
+        image: validateImage(data.image, url),
         description: data.description,
       };
     })
     .catch((err) => {
       throw err;
     });
+}
+
+function validateImage(image: string, url: string) {
+  const domain = new URL(url).hostname;
+
+  if (image.startsWith("/")) {
+    return `https://${domain}${image}`;
+  }
+
+  return image;
 }
 
 type PageProps = {
