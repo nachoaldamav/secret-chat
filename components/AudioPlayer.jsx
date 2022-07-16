@@ -21,6 +21,7 @@ export default function AudioPlayer({ url }) {
   const wavesurfer = useRef(null);
   const [playing, setPlaying] = useState(false);
   const [totalTime, setTotalTime] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
 
   useEffect(() => {
     create();
@@ -39,8 +40,17 @@ export default function AudioPlayer({ url }) {
     wavesurfer.current = WaveSurfer.create(options);
 
     wavesurfer.current.load(url);
+
     wavesurfer.current.on("ready", () => {
       setTotalTime(wavesurfer.current.getDuration());
+    });
+
+    wavesurfer.current.on("finish", () => {
+      setPlaying(false);
+    });
+
+    wavesurfer.current.on("audioprocess", () => {
+      setCurrentTime(wavesurfer.current.getCurrentTime());
     });
   };
 
@@ -60,8 +70,8 @@ export default function AudioPlayer({ url }) {
       </button>
       <div className="w-40 h-20" id="waveform" ref={waveformRef} />
       <audio id="track" src={url} />
-      <span className="text-xs font-bold self-center pr-2">
-        {parseTime(totalTime)}
+      <span className="text-xs font-bold self-center pr-2 w-9">
+        {currentTime !== 0 ? parseTime(currentTime) : parseTime(totalTime)}
       </span>
     </div>
   );
