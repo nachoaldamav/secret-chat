@@ -60,7 +60,7 @@ function SettingsPage() {
         </button>
       </span>
       <h1 className="text-xl font-bold">Ajustes</h1>
-      <p className="text-sm">Aquí puedes los ajustes de tu cuenta.</p>
+      <p className="text-sm">Aquí puedes cambiar los ajustes de tu cuenta.</p>
       <form
         className="flex flex-col items-center"
         onSubmit={(e) => {
@@ -72,7 +72,7 @@ function SettingsPage() {
         <input
           className="w-full p-2 border-2 border-gray-600 bg-transparent rounded-xl"
           type="text"
-          value={user?.user?.displayName}
+          value={values.displayName || user?.user.displayName}
           onChange={(e) =>
             setValues({ ...values, displayName: e.target.value })
           }
