@@ -10,18 +10,33 @@ if (firebaseConfig) {
     `${new Date().toJSON()}  [firebase-messaging-sw] Initialized messaging`
   );
 
-  firebase.messaging().setBackgroundMessageHandler((payload) => {
-    if (payload.type !== "twilio.conversations.new_message") {
+  firebase.messaging().setBackgroundMessageHandler(async (payload) => {
+    if (payload.data.twi_message_type !== "twilio.conversations.new_message") {
       return;
     }
 
-    const notificationTitle = payload.data.conversation_title;
+    const customData = await fetch(
+      `/api/parse-message?string=${payload.data.twi_body}`
+    ).then((res) => res.json());
+
+    const notificationTitle = customData.conversation;
     const notificationOptions = {
-      body: payload.data.twi_body,
+      body: `${customData.user}: ${customData.message}`,
       icon: "favicon.ico",
     };
 
-    self.registration.showNotification(notificationTitle, notificationOptions);
+    self.registration
+      .showNotification(notificationTitle, notificationOptions)
+      .then(() => {
+        console.log(
+          `${new Date().toJSON()}  [firebase-messaging-sw] Notification shown`
+        );
+      })
+      .catch((err) => {
+        console.error(
+          `${new Date().toJSON()}  [firebase-messaging-sw] Error showing notification: ${err}`
+        );
+      });
   });
 } else {
   console.log(
