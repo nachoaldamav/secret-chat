@@ -315,7 +315,7 @@ export default function RoomPage() {
       </div>
       {scroll && (
         <button
-          className="absolute bottom-24 mb-4 inline-flex gap-2 right-0 mx-auto w-fit px-4 py-2 rounded-xl left-0 z-[9999] bg-gray-700"
+          className="absolute bottom-24 mb-4 inline-flex gap-2 right-0 mx-auto w-fit px-4 py-2 rounded-xl left-0 z-[999999] bg-gray-700"
           onClick={() => {
             scrollToBottom();
             conversation?.setAllMessagesRead();
@@ -418,7 +418,7 @@ export default function RoomPage() {
         }}
       >
         <Typing participants={participants} />
-        <div className="w-full h-12 py-1 border gap-1 border-gray-600 rounded-xl inline-flex justify-between px-2 items-center">
+        <div className="w-full h-12 py-1 border border-gray-600 rounded-xl inline-flex justify-between px-2 items-center">
           <input
             autoComplete="false"
             name="hidden"
@@ -430,7 +430,7 @@ export default function RoomPage() {
               <input
                 type="text"
                 id="message"
-                className="w-full h-full rounded-xl bg-transparent border-0 ring-0 focus:ring-0"
+                className="w-3/4 h-full rounded-xl bg-transparent border-0 ring-0 focus:ring-0"
                 maxLength={1600}
                 placeholder={
                   !media
@@ -480,7 +480,7 @@ export default function RoomPage() {
           )}
           {message || media ? (
             <button
-              className="w-fit h-full rounded-full py-2 bg-blue-600 inline-flex items-center text-white justify-center"
+              className="w-10 h-10 rounded-full py-2 bg-blue-600 inline-flex items-center text-white justify-center"
               type="submit"
             >
               {!sending ? (

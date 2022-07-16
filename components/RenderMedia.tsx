@@ -69,7 +69,7 @@ export default function RenderMedia({
       <div className="h-fit w-fit flex flex-col relative items-center justify-center">
         {hasBlur && (
           <span
-            className="inset-0 absolute z-[9999] text-white flex flex-col justify-center items-center text-center text-sm cursor-pointer"
+            className="inset-0 absolute z-[999] text-white flex flex-col justify-center items-center text-center text-sm cursor-pointer"
             onClick={() => setHasBlur(false)}
           >
             <ExclamationIcon className="h-8 w-8" />
