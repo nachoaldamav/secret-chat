@@ -28,6 +28,7 @@ import AddNewParticipant from "../../components/AddNewParticipant";
 import InfiniteScroll from "../../components/InfiniteScroll";
 import Typing from "../../components/TypingComponent";
 import RoomInfo from "../../components/RoomInfo";
+import Head from "next/head";
 
 const GET_ROOM = gql`
   query getRoom($roomId: uuid! = room) {
@@ -263,6 +264,11 @@ export default function RoomPage() {
 
   return (
     <div className="w-full h-full flex flex-col justify-start items-center">
+      <Head>
+        <title>
+          {data?.room[0].name ? data?.room[0].name : "Sala"} - Secret Chat
+        </title>
+      </Head>
       {!data && (
         <div className="w-full h-full flex flex-col justify-center items-center">
           <Spinner />

@@ -8,6 +8,7 @@ import { nhost } from "../libs/nhost";
 import { TwilioProvider } from "../context/twilioConfig";
 import { UserScrollProvider } from "../context/userScroll";
 import TwilioClientProvider from "../context/twilioClient";
+import Head from "next/head";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -21,6 +22,9 @@ function MyApp({ Component, pageProps }: AppProps) {
               attribute="class"
             >
               <AppLayout>
+                <Head>
+                  <title>Secret Chat</title>
+                </Head>
                 <TwilioClientProvider>
                   <Component {...pageProps} />
                 </TwilioClientProvider>

@@ -15,6 +15,7 @@ import {
   suscribeToNotifications,
 } from "../libs/firebase";
 import { Client } from "@twilio/conversations";
+import Head from "next/head";
 
 async function refreshToken(): Promise<{
   token: string;
@@ -104,6 +105,10 @@ function Home() {
 
   return (
     <section className="w-full h-full flex flex-col justify-start items-start px-4 py-3">
+      <Head>
+        <title>Inicio - Secret Chat</title>
+      </Head>
+
       <h1 className="text-2xl font-display text-left text-black dark:text-white font-bold">
         Chats
       </h1>
