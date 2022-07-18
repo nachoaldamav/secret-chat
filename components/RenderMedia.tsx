@@ -24,7 +24,7 @@ export default function RenderMedia({
     width: number;
     height: number;
   } | null>(null);
-  const [hasBlur, setHasBlur] = useState(false);
+  const [hasBlur, setHasBlur] = useState(true);
 
   useEffect(() => {
     async function fetchFile() {
