@@ -7,6 +7,4 @@ App creada para la hackathon de midudev https://twitch.tv/midudev
  - Invitar participantes a las salas
  - Enviar mensajes de texto, audios, videos y documentos
  - Detección temprana de contenido NSFW y marcado para no mostrarlo directamente
- - Añadir contactos (WIP)
- - PWA (WIP)
- - Push notifications (WIP)
+ - Push notifications
