@@ -194,7 +194,7 @@ export default function RoomPage() {
             const ext = file.name.split(".").pop();
             const basename = file.name.split(".").shift();
             const isSafe =
-              ext === "jpg" || ext === "png" || ext === "webp"
+              ext === "jpg" || ext === "png" || ext === "webp" || ext === "gif"
                 ? await checkSafeImage(file)
                 : true;
             const filename = `${basename}${!isSafe ? "-blur" : ""}.${ext}`;
