@@ -17,7 +17,6 @@ export default function GifSearch({
 }) {
   const [q, setQ] = useState("");
   const [gifs, setGifs] = useState<IGif[] | null>(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -74,11 +73,6 @@ export default function GifSearch({
             value={q}
             onChange={(e) => setQ(e.target.value)}
           />
-          {loading && (
-            <div className="text-center">
-              <Spinner />
-            </div>
-          )}
           {error && <div className="text-center text-red-600">{error}</div>}
         </div>
         <div className="flex flex-col items-start justify-start h-4/5 overflow-y-auto md:scrollbar-hide mt-2">
