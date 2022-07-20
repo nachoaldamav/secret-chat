@@ -24,27 +24,6 @@ function MyApp({ Component, pageProps }: AppProps) {
               <AppLayout>
                 <Head>
                   <title>Secret Chat</title>
-                  <link
-                    rel="icon"
-                    href="/images/logo.png"
-                    type="image/png"
-                    sizes="1080x1080"
-                  />
-                  <meta property="og:title" content="Secret Chat" />
-                  <meta property="og:site_name" content="Secret Chat" />
-                  <meta
-                    property="og:url"
-                    content="https://secret-chat-one.vercel.app/"
-                  />
-                  <meta
-                    property="og:description"
-                    content="¡App para chatear con cualquier persona!"
-                  />
-                  <meta property="og:type" content="website" />
-                  <meta
-                    property="og:image"
-                    content="https://secret-chat-one.vercel.app/images/og-image.jpg"
-                  />
                 </Head>
                 <TwilioClientProvider>
                   <Component {...pageProps} />
