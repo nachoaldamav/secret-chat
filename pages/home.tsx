@@ -67,29 +67,6 @@ function Home() {
       client.on("tokenExpired", () => {
         handleTokenRefresh();
       });
-
-      client.on("pushNotification", async (event) => {
-        console.log("Push notification: ", event);
-
-        const res = await fetch(
-          `/api/parse-message?string=${encodeURIComponent(
-            event.body as string
-          )}`
-        )
-          .then((res) => res.json())
-          .catch((err) => console.error(err));
-
-        // @ts-ignore
-        if (event.type != "twilio.conversations.new_message") {
-          return;
-        }
-
-        if (Notification.permission === "granted") {
-          showNotification(event, res);
-        } else {
-          console.log("Push notification is skipped", Notification.permission);
-        }
-      });
     }
 
     return () => {
