@@ -29,6 +29,7 @@ import InfiniteScroll from "../../components/InfiniteScroll";
 import Typing from "../../components/TypingComponent";
 import RoomInfo from "../../components/RoomInfo";
 import Head from "next/head";
+import GifSearch from "../../components/GifSearch";
 
 const GET_ROOM = gql`
   query getRoom($roomId: uuid! = room) {
@@ -79,6 +80,7 @@ export default function RoomPage() {
   const [sending, setSending] = useState<boolean>(false);
   const [showInfo, setShowInfo] = useState<boolean>(false);
   const [addParticipant, setAddParticipant] = useState<boolean>(false);
+  const [gifSearch, setGifSearch] = useState<boolean | null>(null);
   const { scroll, setContainer } = useScroll();
   let scrollDiv = useRef<HTMLInputElement>(null);
   let scrollAnchor = useRef<HTMLInputElement>(null);
@@ -341,6 +343,12 @@ export default function RoomPage() {
           isCreator={isCreator as boolean}
         />
       )}
+      {gifSearch && (
+        <GifSearch
+          conversation={conversation as Conversation}
+          onClick={() => setGifSearch(false)}
+        />
+      )}
       {addParticipant && (
         <span className="absolute inset-0 w-full h-full bg-black bg-opacity-40 rounded-xl z-[9999]">
           <span
@@ -461,6 +469,15 @@ export default function RoomPage() {
                   }
                 }}
               />
+              <button
+                type="button"
+                className="w-10 h-fit font-extrabold bg-white rounded px-1 inline-flex items-center justify-center text-primary"
+                onClick={() => {
+                  setGifSearch(true);
+                }}
+              >
+                GIF
+              </button>
               <button
                 className="w-12 h-12 flex items-center justify-center"
                 id="file-button"

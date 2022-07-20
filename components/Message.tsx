@@ -7,6 +7,7 @@ import RenderMedia from "./RenderMedia";
 import timeAgo from "../utils/timeAgo";
 import { useEffect, useState } from "react";
 import { useHover } from "@react-aria/interactions";
+import GiphyRender from "./customLinks/Giphy";
 
 type Props = {
   message: Message;
@@ -14,6 +15,15 @@ type Props = {
   conversation: Conversation;
   prevAuthor: string | null;
 };
+
+const CUSTOM_LINKS = [
+  {
+    name: "Giphy",
+    // https://media0.giphy.com/media/
+    pattern: /https:\/\/media[0-9].giphy.com\/media\/[^\s]+/g,
+    Component: ({ url }: { url: string }) => <GiphyRender url={url} />,
+  },
+];
 
 export default function MessageComponent({
   message,
@@ -33,6 +43,14 @@ export default function MessageComponent({
   const links = (message && message.body && message.body.match(regex)) || [];
 
   const mediaUrl = message.attachedMedia || [];
+
+  const hasCustomLinks = CUSTOM_LINKS.some((link) =>
+    links.some((url) => url.match(link.pattern))
+  );
+
+  const customLink = CUSTOM_LINKS.find((link) =>
+    links.some((url) => url.match(link.pattern))
+  );
 
   function callback(
     entries: any[],
@@ -127,7 +145,7 @@ export default function MessageComponent({
             backgroundColor: message.author === userId ? "#1d4ed8" : "#374151",
           }}
         >
-          {message.type === "text" && (
+          {message.type === "text" && !hasCustomLinks && (
             <>
               {message.author !== userId && message.author !== prevAuthor && (
                 <p className="text-sm font-semibold text-white">
@@ -148,6 +166,9 @@ export default function MessageComponent({
               </LinkIt>
             </>
           )}
+          {hasCustomLinks && customLink && (
+            <customLink.Component url={links[0]} />
+          )}
           {message.type === "media" && (
             <div className="flex flex-col">
               {message.author !== userId && (
@@ -163,7 +184,9 @@ export default function MessageComponent({
             </div>
           )}
         </div>
-        {isVisible && links.length > 0 && <Links url={links[0]} />}
+        {!hasCustomLinks && isVisible && links.length > 0 && (
+          <Links url={links[0]} />
+        )}
         {isCreator && isHovered ? (
           <span className="text-xs inline-flex text-white h-6 mt-1 items-center justify-end gap-1 px-1">
             <span className="border px-0.5 rounded">CTRL</span> +{" "}

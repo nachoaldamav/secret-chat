@@ -24,7 +24,9 @@ export default async function createOrJoinRoom(
               uniqueName: room,
               friendlyName: room,
             });
-            await conversation.add(userId as string);
+            await conversation.join();
+
+            console.log("[Room] Created conversation");
 
             if (participants) {
               for await (const participant of participants) {
@@ -37,11 +39,11 @@ export default async function createOrJoinRoom(
             throw err;
           }
         } catch (e: any) {
-          console.error(e.message);
           if (e.message === "Conflict") {
             await client
               .getConversationByUniqueName(room)
               .then((conversation) => {
+                conversation.join();
                 resolve(conversation);
               });
           } else {
