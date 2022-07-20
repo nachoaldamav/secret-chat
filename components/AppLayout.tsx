@@ -49,7 +49,7 @@ export default function AppLayout({ children }: any) {
           {children}
         </div>
         {hasFooter && (
-          <div className="flex flex-row items-center absolute bottom-0 left-0 px-2 py-6 justify-evenly w-full bg-gray-100 dark:bg-gray-800 rounded-t-2xl sm:rounded-b-xl h-fit">
+          <div className="flex flex-row items-center absolute bottom-0 left-0 px-2 py-6 justify-evenly w-full bg-gray-100 dark:bg-gray-800 rounded-t-2xl rounded-b-none sm:rounded-b-xl h-fit">
             {ROUTES.map((route) => (
               <Link href={route.path} key={route.path}>
                 <a

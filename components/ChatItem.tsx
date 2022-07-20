@@ -142,7 +142,7 @@ function getText(message: Message) {
     if (type === "text") {
       return message.body && message.body?.length < 30
         ? message.body
-        : message.body?.slice(0, 30) + "...";
+        : message.body?.slice(0, 15) + "...";
     } else if (type === "media") {
       const mediaType =
         (message.attachedMedia && message?.attachedMedia[0]?.contentType) ||
