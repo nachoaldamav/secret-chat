@@ -6,7 +6,7 @@ import type { IGif } from "@giphy/js-types";
 import Spinner from "./Spinner";
 import Image from "next/image";
 import cn from "clsx";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 
 export default function GifSearch({
   onClick,
