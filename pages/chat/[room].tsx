@@ -30,6 +30,7 @@ import Typing from "../../components/TypingComponent";
 import RoomInfo from "../../components/RoomInfo";
 import Head from "next/head";
 import GifSearch from "../../components/GifSearch";
+import { AnimatePresence } from "framer-motion";
 
 const GET_ROOM = gql`
   query getRoom($roomId: uuid! = room) {
@@ -343,12 +344,14 @@ export default function RoomPage() {
           isCreator={isCreator as boolean}
         />
       )}
-      {gifSearch && (
-        <GifSearch
-          conversation={conversation as Conversation}
-          onClick={() => setGifSearch(false)}
-        />
-      )}
+      <AnimatePresence>
+        {gifSearch && (
+          <GifSearch
+            conversation={conversation as Conversation}
+            onClick={() => setGifSearch(false)}
+          />
+        )}
+      </AnimatePresence>
       {addParticipant && (
         <span className="absolute inset-0 w-full h-full bg-black bg-opacity-40 rounded-xl z-[9999]">
           <span

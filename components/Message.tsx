@@ -8,6 +8,7 @@ import timeAgo from "../utils/timeAgo";
 import { useEffect, useState } from "react";
 import { useHover } from "@react-aria/interactions";
 import GiphyRender from "./customLinks/Giphy";
+import { motion } from "framer-motion";
 
 type Props = {
   message: Message;
@@ -124,11 +125,21 @@ export default function MessageComponent({
         justifyContent: message.author === userId ? "flex-end" : "flex-start",
       }}
     >
-      <div
+      <motion.div
         className="flex flex-col w-full"
         style={{
           textAlign: message.author === userId ? "right" : "left",
           alignItems: message.author === userId ? "flex-end" : "flex-start",
+        }}
+        initial={{
+          x: message.author === userId ? 100 : -100,
+        }}
+        animate={{
+          x: 0,
+          transition: {
+            duration: 0.5,
+            ease: "easeInOut",
+          },
         }}
       >
         <div
@@ -197,7 +208,7 @@ export default function MessageComponent({
             <TimeAgo date={message.dateCreated as Date} />
           </span>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }
