@@ -40,6 +40,8 @@ class MyDocument extends Document {
             property="og:image"
             content="https://secret-chat-one.vercel.app/images/og-image.jpg"
           />
+          <link rel="manifest" href="/manifest.json" />
+          <meta name="theme-color" content="#181622" />
         </Head>
         <body>
           <Main />

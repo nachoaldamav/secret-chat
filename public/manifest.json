@@ -1,0 +1,32 @@
+{
+    "theme_color": "#181622",
+    "background_color": "#181622",
+    "display": "standalone",
+    "scope": "/",
+    "start_url": "/",
+    "name": "Secret Chat",
+    "short_name": "Secret Chat",
+    "description": "\u00a1App para chatear con cualquier persona!",
+    "icons": [
+        {
+            "src": "/images/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/images/icon-256x256.png",
+            "sizes": "256x256",
+            "type": "image/png"
+        },
+        {
+            "src": "/images/icon-384x384.png",
+            "sizes": "384x384",
+            "type": "image/png"
+        },
+        {
+            "src": "/images/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
