@@ -43,7 +43,7 @@ export default function AppLayout({ children }: any) {
     !NON_PROTECTED_ROUTES.includes(pathname) && pathname !== "/chat/[room]";
 
   return (
-    <div className="w-full min-h-screen flex flex-col items-start justify-center h-fit bg-gray-200 text-black dark:bg-secondary dark:text-white font-display sm:p-4 max-h-screen">
+    <div className="w-full min-h-screen overflow-hidden flex flex-col items-start justify-center h-fit bg-gray-200 text-black dark:bg-secondary dark:text-white font-display sm:p-4 max-h-screen">
       <div className="flex flex-col w-full max-w-md mx-auto bg-primaryLight dark:bg-primary sm:max-h-[95vh] h-screen sm:rounded-xl relative">
         <div className="flex flex-col w-full h-[100%] justify-start items-center">
           {children}
