@@ -1,5 +1,5 @@
 import withAuth from "../utils/withAuth";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Chat, QUERY_PROD } from "../queries/getChats";
 import Spinner from "../components/Spinner";
 import ChatItem from "../components/ChatItem";
@@ -34,6 +34,7 @@ function Home() {
   const id = getUserId();
   const { config, setConfig } = useTwilioConfig();
   const { client } = useTwilio();
+  const [unreadMessages, setUnreadMessages] = useState<number[]>([]);
 
   // Wrap in useCallback
   const handleTokenRefresh = useCallback(async () => {
@@ -103,10 +104,18 @@ function Home() {
 
   const chats: Response = data;
 
+  const unreadMessagesCount = unreadMessages.reduce(
+    (acc, curr) => acc + curr,
+    0
+  );
+
   return (
     <section className="w-full h-full flex flex-col justify-start items-start px-4 py-3">
       <Head>
-        <title>Inicio - Secret Chat</title>
+        <title>
+          {unreadMessagesCount > 0 ? `(${unreadMessagesCount}) ` : ""}Inicio -
+          Secret Chat
+        </title>
       </Head>
 
       <h1 className="text-2xl font-display text-left text-black dark:text-white font-bold">
@@ -127,7 +136,7 @@ function Home() {
       {chats && chats.room.length > 0 && (
         <ul className="w-full h-[100%] flex flex-col justify-start items-start gap-2 overflow-x-auto pb-16">
           {chats.room.map((chat: Chat) => (
-            <ChatItem chat={chat} key={chat.id} />
+            <ChatItem chat={chat} key={chat.id} setUnread={setUnreadMessages} />
           ))}
         </ul>
       )}

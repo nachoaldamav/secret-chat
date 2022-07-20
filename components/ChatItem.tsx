@@ -8,7 +8,13 @@ import type { Chat } from "../queries/getChats";
 import { getName, HomeMessage } from "../utils/getHomeMessages";
 import MessageSkeleton from "./MessageLoader";
 
-export default function ChatItem({ chat }: { chat: Chat }) {
+export default function ChatItem({
+  chat,
+  setUnread,
+}: {
+  chat: Chat;
+  setUnread: any;
+}) {
   const [info, setInfo] = useState<HomeMessage | null>(null);
   const { config } = useTwilioConfig();
   const { client } = useTwilio();
@@ -37,6 +43,7 @@ export default function ChatItem({ chat }: { chat: Chat }) {
         const timestamp = message?.dateUpdated?.toISOString() ?? "";
 
         setInfo({ author, message, timestamp, unread });
+        setUnread((prev: number[]) => [...prev, unread]);
       } catch (e) {
         console.error("Fetch last message failed", e);
         setInfo({
@@ -56,6 +63,7 @@ export default function ChatItem({ chat }: { chat: Chat }) {
         client?.removeListener("messageAdded", getMessage);
       };
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chat.id, config, client]);
 
   return (
