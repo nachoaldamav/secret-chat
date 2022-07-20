@@ -5,15 +5,18 @@ import { useEffect, useState } from "react";
 import useTwilio from "../hooks/twilio";
 import { useTwilioConfig } from "../hooks/useTwilioConfig";
 import type { Chat } from "../queries/getChats";
+import type { unread } from "../types/unread";
 import { getName, HomeMessage } from "../utils/getHomeMessages";
 import MessageSkeleton from "./MessageLoader";
 
 export default function ChatItem({
   chat,
   setUnread,
+  unreadMessages,
 }: {
   chat: Chat;
   setUnread: any;
+  unreadMessages: unread[];
 }) {
   const [info, setInfo] = useState<HomeMessage | null>(null);
   const { config } = useTwilioConfig();
@@ -43,7 +46,20 @@ export default function ChatItem({
         const timestamp = message?.dateUpdated?.toISOString() ?? "";
 
         setInfo({ author, message, timestamp, unread });
-        setUnread((prev: number[]) => [...prev, unread]);
+
+        // Remove previous unread message
+        const previousUnread = unreadMessages.find(
+          (u) => u.chat_id === chat.id
+        );
+
+        if (previousUnread) {
+          setUnread(unreadMessages.filter((u) => u.chat_id !== chat.id));
+        }
+
+        // Add new unread message
+        if (unread > 0) {
+          setUnread([...unreadMessages, { chat_id: chat.id, unread }]);
+        }
       } catch (e) {
         console.error("Fetch last message failed", e);
         setInfo({

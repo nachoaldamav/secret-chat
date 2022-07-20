@@ -16,6 +16,7 @@ import {
 } from "../libs/firebase";
 import { Client } from "@twilio/conversations";
 import Head from "next/head";
+import type { unread } from "../types/unread";
 
 async function refreshToken(): Promise<{
   token: string;
@@ -34,7 +35,7 @@ function Home() {
   const id = getUserId();
   const { config, setConfig } = useTwilioConfig();
   const { client } = useTwilio();
-  const [unreadMessages, setUnreadMessages] = useState<number[]>([]);
+  const [unreadMessages, setUnreadMessages] = useState<unread[]>([]);
 
   // Wrap in useCallback
   const handleTokenRefresh = useCallback(async () => {
@@ -105,7 +106,7 @@ function Home() {
   const chats: Response = data;
 
   const unreadMessagesCount = unreadMessages.reduce(
-    (acc, curr) => acc + curr,
+    (acc, { unread }) => acc + unread,
     0
   );
 
@@ -136,7 +137,12 @@ function Home() {
       {chats && chats.room.length > 0 && (
         <ul className="w-full h-[100%] flex flex-col justify-start items-start gap-2 overflow-x-auto pb-16">
           {chats.room.map((chat: Chat) => (
-            <ChatItem chat={chat} key={chat.id} setUnread={setUnreadMessages} />
+            <ChatItem
+              chat={chat}
+              key={chat.id}
+              setUnread={setUnreadMessages}
+              unreadMessages={unreadMessages}
+            />
           ))}
         </ul>
       )}
