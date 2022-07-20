@@ -24,6 +24,12 @@ function MyApp({ Component, pageProps }: AppProps) {
               <AppLayout>
                 <Head>
                   <title>Secret Chat</title>
+                  <link
+                    rel="icon"
+                    href="/images/logo.png"
+                    type="image/png"
+                    sizes="1080x1080"
+                  />
                 </Head>
                 <TwilioClientProvider>
                   <Component {...pageProps} />
