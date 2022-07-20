@@ -420,7 +420,7 @@ export default function RoomPage() {
       <form
         id="input"
         autoComplete="off"
-        className="w-full z-20 inline-flex items-center justify-between gap-1 flex-row absolute bottom-0 left-0 px-2 py-6 bg-gray-100 dark:bg-primary rounded-none md:rounded-b-xl h-22"
+        className="w-full z-20 inline-flex items-center justify-between gap-1 flex-row absolute bottom-0 left-0 px-2 py-6 bg-gray-100 dark:bg-primary rounded-none sm:rounded-b-xl h-22"
         onSubmit={(e) => {
           e.preventDefault();
 

@@ -47,7 +47,7 @@ export default function GifSearch({
         onClick={onClick}
       />
       <motion.div
-        className="absolute bottom-0 left-0 mx-auto p-4 z-[99999] rounded-xl w-full h-3/4 bg-gray-900"
+        className="absolute flex flex-col bottom-0 left-0 mx-auto p-4 z-[999999] rounded-xl w-full h-3/4 bg-gray-900"
         initial={{
           opacity: 1,
           y: 400,
@@ -65,21 +65,23 @@ export default function GifSearch({
           ease: "easeInOut",
         }}
       >
-        <h1 className="text-center text-2xl font-bold">Buscar GIF</h1>
-        <input
-          className="w-full p-2 rounded-lg border-2 border-gray-300 bg-transparent"
-          type="text"
-          placeholder="Buscar GIF"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-        />
-        {loading && (
-          <div className="text-center">
-            <Spinner />
-          </div>
-        )}
-        {error && <div className="text-center text-red-600">{error}</div>}
-        <div className="flex flex-col items-start justify-start h-96 overflow-y-auto md:scrollbar-hide mt-2">
+        <div className="flex flex-col items-center justify-start h-1/5">
+          <h1 className="text-center text-2xl font-bold">Buscar GIF</h1>
+          <input
+            className="w-full p-2 rounded-lg border-2 border-gray-300 bg-transparent"
+            type="text"
+            placeholder="Buscar GIF"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
+          {loading && (
+            <div className="text-center">
+              <Spinner />
+            </div>
+          )}
+          {error && <div className="text-center text-red-600">{error}</div>}
+        </div>
+        <div className="flex flex-col items-start justify-start h-4/5 overflow-y-auto md:scrollbar-hide mt-2">
           {gifs && (
             <div className="columns-2 [column-fill:_balance] box-border mx-auto before:box-inherit after:box-inherit">
               {gifs.map((gif) => (
