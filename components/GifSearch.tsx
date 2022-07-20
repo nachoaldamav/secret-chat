@@ -3,7 +3,6 @@ import { Conversation } from "@twilio/conversations";
 import { useEffect, useState } from "react";
 import gf from "../libs/giphy";
 import type { IGif } from "@giphy/js-types";
-import Spinner from "./Spinner";
 import Image from "next/image";
 import cn from "clsx";
 import { motion } from "framer-motion";
