@@ -69,13 +69,15 @@ export default function LoginPage() {
           Nombre de usuario
         </label>
         <input
-          className="main-input"
+          className="main-input lowercase"
           id="username"
           type="text"
           maxLength={20}
           required
           value={data.username}
-          onChange={(e) => setData({ ...data, username: e.target.value })}
+          onChange={(e) =>
+            setData({ ...data, username: e.target.value.toLowerCase() })
+          }
         />
 
         <label htmlFor="email" className="font-medium text-gray-300">

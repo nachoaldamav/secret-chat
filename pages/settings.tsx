@@ -70,11 +70,11 @@ function SettingsPage() {
       >
         <label className="text-sm font-bold mt-4 mb-2">Nombre de usuario</label>
         <input
-          className="w-full p-2 border-2 border-gray-600 bg-transparent rounded-xl"
+          className="w-full p-2 border-2 border-gray-600 bg-transparent rounded-xl lowercase"
           type="text"
           value={values.displayName || user?.user.displayName}
           onChange={(e) =>
-            setValues({ ...values, displayName: e.target.value })
+            setValues({ ...values, displayName: e.target.value.toLowerCase() })
           }
         />
         <label className="text-sm font-bold mt-4 mb-2">
