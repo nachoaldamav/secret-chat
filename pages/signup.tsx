@@ -37,6 +37,7 @@ export default function LoginPage() {
           },
         })
         .then(async (res) => {
+          if (res.error) throw res.error;
           nhost.auth
             .signIn({
               email: data.email,
@@ -166,6 +167,7 @@ export default function LoginPage() {
 
 const ERROR_CODES: any = {
   "invalid-email": "El correo electrónico no es válido",
+  "email-already-in-use": "El correo electrónico ya está en uso",
 };
 
 type ErrorNhost = {
