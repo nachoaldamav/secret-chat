@@ -52,10 +52,10 @@ export default function RenderMedia({
         });
     }
 
-    if (raw && isVisible) {
+    if (raw && isVisible && !url) {
       fetchFile();
     }
-  }, [raw, isVisible, containerEl, scroll]);
+  }, [raw, isVisible, containerEl, scroll, url]);
 
   if (!url) {
     return <div className="h-10 w-20"></div>;
